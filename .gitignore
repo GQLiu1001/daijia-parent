@@ -1,0 +1,95 @@
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.idea_modules/
+
+### Java ###
+# 编译后的文件
+target/
+*.class
+
+# 日志文件
+*.log
+logs/
+
+# 打包文件
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# 虚拟机崩溃日志
+hs_err_pid*
+replay_pid*
+
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+### Gradle ###
+.gradle
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+### 系统文件 ###
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+### 微服务相关 ###
+# 配置文件，根据需要调整
+# application-*.yml
+# application-*.properties
+
+# 本地开发环境配置
+application-local.yml
+application-local.properties
+
+# 敏感信息配置
+**/resources/credentials.yml
+**/resources/secrets.properties
+
+### Node ###
+# 如果项目包含前端
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+### 其他 ###
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+
+# IDE 环境配置
+.settings/
+.classpath
+.project
+.factorypath
+.springBeans
+.sts4-cache/
+
+# 测试报告
+**/test-output/
+**/reports/
