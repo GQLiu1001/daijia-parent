@@ -13,8 +13,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value="/driver/info")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class DriverInfoController {
-	
-
-
 }
 
