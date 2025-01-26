@@ -3,7 +3,9 @@ package com.atguigu.daijia.model.entity.customer;
 import com.atguigu.daijia.model.entity.base.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
+@Component
 @Data
 @Schema(description = "CustomerLoginLog")
 public class CustomerLoginLog extends BaseEntity {
