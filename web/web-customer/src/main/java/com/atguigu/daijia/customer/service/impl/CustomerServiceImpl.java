@@ -5,6 +5,7 @@ import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.common.result.ResultCodeEnum;
 import com.atguigu.daijia.customer.client.CustomerInfoFeignClient;
 import com.atguigu.daijia.customer.service.CustomerService;
+import com.atguigu.daijia.model.vo.customer.CustomerLoginVo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +43,42 @@ public class CustomerServiceImpl implements CustomerService {
         redisTemplate.opsForValue().set(token,id.toString(),1, TimeUnit.DAYS);
         //6.返回token
         return token;
+    }
+    @Resource
+    private CustomerInfoFeignClient customerInfoFeignClient;
+    @Override
+    public CustomerLoginVo getCustomerLoginInfo(String token) {
+        //从请求头获取字符串token
+        //查redis里的token
+        String o = (String) redisTemplate.opsForValue().get(token);
+        //是否为空 是否一样
+        System.out.println("token:"+o);
+        if (o == null) {
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        //根据id调用service-customer 返回个包含VO的Result类型
+        Result<CustomerLoginVo> Vo =  customerInfoFeignClient.getCustomerLoginInfo(Long.valueOf(o));
+        if (Vo.getCode()!=200){
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        //提取VO
+        CustomerLoginVo loginVo = Vo.getData();
+        if (loginVo==null){
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        return loginVo;
+    }
+
+    @Override
+    public CustomerLoginVo getInfo(Long customId) {
+        Result<CustomerLoginVo> customerLoginInfo = client.getCustomerLoginInfo(customId);
+        if (customerLoginInfo.getCode() != 200) {
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        CustomerLoginVo loginVo = customerLoginInfo.getData();
+        if (loginVo==null){
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
+        return loginVo;
     }
 }

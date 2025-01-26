@@ -3,6 +3,9 @@ package com.atguigu.daijia.customer.controller;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.customer.service.CustomerInfoService;
 import com.atguigu.daijia.model.entity.customer.CustomerInfo;
+import com.atguigu.daijia.model.entity.customer.CustomerLoginLog;
+import com.atguigu.daijia.model.vo.customer.CustomerInfoVo;
+import com.atguigu.daijia.model.vo.customer.CustomerLoginVo;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -21,15 +24,20 @@ public class CustomerInfoController {
 	@Resource
 	private CustomerInfoService customerInfoService;
 
+
+
+
 	@Operation(summary = "授权登录")
 	@GetMapping("/login/{code}")
 	public Result<Long> login(@PathVariable("code") String code) throws WxErrorException {
 		return Result.ok(customerInfoService.login(code));
 	}
-//	@Operation(summary = "获取客户基本信息")
-//	@GetMapping("/getCustomerInfo/{customerId}")
-//	public Result<CustomerInfo> getCustomerInfo(@PathVariable Long customerId) {
-//		return Result.ok(customerInfoService.getById(customerId));
-//	}
+	//用VO封装
+	@Operation(summary = "获取客户基本信息")
+	@GetMapping("/getCustomerLoginInfo/{customerId}")
+	public Result<CustomerLoginVo> getCustomerInfo(@PathVariable Long customerId) {
+		CustomerLoginVo customerLoginVo = customerInfoService.getCustomerInfo(customerId);
+		return Result.ok(customerLoginVo);
+	}
 }
 
