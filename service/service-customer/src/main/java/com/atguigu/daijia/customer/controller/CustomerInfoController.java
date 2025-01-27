@@ -20,18 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/customer/info")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class CustomerInfoController {
+	//注入当前层的Service
 	@Resource
-	private CustomerInfoService customerInfoService;
+	private CustomerInfoService infoService;
+
 	@Operation(summary = "授权登录")
 	@GetMapping("/login/{code}")
 	public Result<Long> login(@PathVariable("code") String code) throws WxErrorException {
-		return Result.ok(customerInfoService.login(code));
+		return Result.ok(infoService.login(code));
 	}
+
 	//用VO封装
 	@Operation(summary = "获取客户基本信息")
 	@GetMapping("/getCustomerLoginInfo/{customerId}")
 	public Result<CustomerLoginVo> getCustomerInfo(@PathVariable Long customerId) {
-		CustomerLoginVo customerLoginVo = customerInfoService.getCustomerInfo(customerId);
+		CustomerLoginVo customerLoginVo = infoService.getCustomerInfo(customerId);
 		return Result.ok(customerLoginVo);
 	}
 }

@@ -27,12 +27,11 @@ import java.util.Random;
 public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, CustomerInfo> implements CustomerInfoService {
     @Resource
     private WxMaService wxMaService;
+    //注入当前层的mapper
     @Resource
-    private CustomerInfoMapper customerInfoMapper;
+    private CustomerInfoMapper infoMapper;
     @Resource
     private CustomerLoginLogMapper customerLoginLogMapper;
-    @Resource
-    private CustomerLoginLog customerLoginLog;
     @Override
     public Long login(String code) throws WxErrorException {
         String openid = null;
@@ -44,7 +43,7 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
         QueryWrapper<CustomerInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("wx_open_id", openid);
 //        queryWrapper.eq(CustomerInfo::getWxOpenId,openid);
-        CustomerInfo customerInfo = customerInfoMapper.selectOne(queryWrapper);
+        CustomerInfo customerInfo = infoMapper.selectOne(queryWrapper);
         if (customerInfo == null) {
             //new CustomerInfo() 是必需的 - 因为 customerInfo 为 null 时我们需要一个新对象来存储数据。
             // 否则无法调用 setWxOpenId() 等方法，会报 NullPointerException。
@@ -53,9 +52,10 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
             String phone = String.format("%11d", new Random().nextInt(10000));
             customerInfo.setPhone(phone);
             customerInfo.setAvatarUrl("https://oss.aliyuncs.com/aliyun_id_photo_bucket/default_handsome.jpg");
-            customerInfo.setNickname("newGuy");
-            customerInfoMapper.insert(customerInfo);
+            customerInfo.setNickname("newGuy"+"phone");
+            infoMapper.insert(customerInfo);
         }
+        CustomerLoginLog customerLoginLog = new CustomerLoginLog();
         customerLoginLog.setCustomerId(customerInfo.getId());
         customerLoginLog.setMsg("小程序登录");
         customerLoginLogMapper.insert(customerLoginLog);
@@ -66,7 +66,7 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
     @Override
     public CustomerLoginVo getCustomerInfo(Long customerId) {
         //根据id查询客户信息
-        CustomerInfo customerInfo = customerInfoMapper.selectById(customerId);
+        CustomerInfo customerInfo = infoMapper.selectById(customerId);
         //封装到VO
         CustomerLoginVo customerLoginVo = new CustomerLoginVo();
         BeanUtils.copyProperties(customerInfo, customerLoginVo);
