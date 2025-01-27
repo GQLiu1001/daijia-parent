@@ -29,7 +29,6 @@ public class CustomerController {
     private CustomerService customerService;
     @Resource
     private CustomerInfoFeignClient customerInfoFeignClient;
-
     @Operation(summary = "授权登录")
     @GetMapping("/login/{code}")
     public Result<String> login(@PathVariable("code") String code) {

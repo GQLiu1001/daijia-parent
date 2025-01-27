@@ -68,7 +68,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
         return loginVo;
     }
-
+    //测试@GuiguLogin注解AOP
     @Override
     public CustomerLoginVo getInfo(Long customId) {
         Result<CustomerLoginVo> customerLoginInfo = client.getCustomerLoginInfo(customId);

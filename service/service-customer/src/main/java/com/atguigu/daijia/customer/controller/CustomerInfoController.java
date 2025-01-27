@@ -20,13 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/customer/info")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class CustomerInfoController {
-
 	@Resource
 	private CustomerInfoService customerInfoService;
-
-
-
-
 	@Operation(summary = "授权登录")
 	@GetMapping("/login/{code}")
 	public Result<Long> login(@PathVariable("code") String code) throws WxErrorException {
