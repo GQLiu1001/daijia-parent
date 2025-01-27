@@ -12,5 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 @FeignClient(value = "service-driver")
 public interface OcrFeignClient {
 
-
+    @PostMapping(value = "/ocr/idCardOcr", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    IdCardOcrVo idCardOcr(MultipartFile file);
+    @PostMapping(value = "/ocr/driverLicenseOcr", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    DriverLicenseOcrVo driverLicenseOcr(MultipartFile file);
 }

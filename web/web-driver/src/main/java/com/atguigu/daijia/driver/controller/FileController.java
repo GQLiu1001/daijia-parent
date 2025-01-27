@@ -18,15 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileController {
     @Resource
     private FileService fileService;
-    //文件上传接口
-//    @GuiguLogin
-    @Operation(summary = "上传文件")
-    @PostMapping("/upload") //url 是 上传地址
-    public Result<CosUploadVo> upload(@RequestPart("file") MultipartFile file,
-                            @RequestParam(name = "path",defaultValue = "auth") String url) {
-        System.out.println(url);
-        CosUploadVo vo = fileService.upload(file,url);
-        return Result.ok(vo);
-    }
+
 
 }

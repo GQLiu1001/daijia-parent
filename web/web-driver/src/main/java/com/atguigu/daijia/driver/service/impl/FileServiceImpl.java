@@ -14,11 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class FileServiceImpl implements FileService {
-    @Resource
-    private CosFeignClient client;
 
-    @Override
-    public CosUploadVo upload(MultipartFile file,String url) {
-        return client.upload(file,url);
-    }
+
+
 }
