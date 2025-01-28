@@ -1,5 +1,6 @@
 package com.atguigu.daijia.driver.controller;
 
+import com.atguigu.daijia.common.login.GuiguLogin;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.driver.service.OcrService;
 import com.atguigu.daijia.model.vo.driver.DriverLicenseOcrVo;

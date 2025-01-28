@@ -72,6 +72,10 @@
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
             <scope>provided </scope>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-alibaba-commons</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

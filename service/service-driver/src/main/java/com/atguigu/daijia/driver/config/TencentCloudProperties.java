@@ -11,4 +11,5 @@ public class TencentCloudProperties {
     private String bucketPrivate;
     private String secretId;
     private String secretKey;
+    private String personGroupId;
 }

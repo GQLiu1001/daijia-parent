@@ -1,5 +1,6 @@
 package com.atguigu.daijia.driver.controller;
 
+import com.atguigu.daijia.common.login.GuiguLogin;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.driver.service.OcrService;
 import com.atguigu.daijia.model.vo.driver.DriverLicenseOcrVo;
@@ -22,14 +23,14 @@ import java.util.Map;
 public class OcrController {
 	@Resource
     private OcrService ocrService;
-
+    @GuiguLogin
     @Operation(summary = "身份证识别")
     @PostMapping("/idCardOcr")
     public Result<IdCardOcrVo> idCardOcr(@RequestPart("file") MultipartFile file) {
         IdCardOcrVo vo =  ocrService.idCardOcr(file);
         return Result.ok(vo);
     }
-
+    @GuiguLogin
     @Operation(summary = "驾驶证识别")
     @PostMapping("/driverLicenseOcr")
     public Result<DriverLicenseOcrVo> driverLicenseOcr(@RequestPart("file") MultipartFile file) {

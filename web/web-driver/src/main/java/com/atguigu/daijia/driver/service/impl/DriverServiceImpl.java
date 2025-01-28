@@ -3,9 +3,13 @@ package com.atguigu.daijia.driver.service.impl;
 import com.atguigu.daijia.common.execption.GuiguException;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.common.result.ResultCodeEnum;
+import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.customer.client.CustomerInfoFeignClient;
 import com.atguigu.daijia.driver.client.DriverInfoFeignClient;
 import com.atguigu.daijia.driver.service.DriverService;
+import com.atguigu.daijia.model.form.driver.DriverFaceModelForm;
+import com.atguigu.daijia.model.form.driver.UpdateDriverAuthInfoForm;
+import com.atguigu.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.atguigu.daijia.model.vo.driver.DriverLoginVo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -57,5 +61,23 @@ public class DriverServiceImpl implements DriverService {
             throw  new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
         return driverInfo.getData();
+    }
+
+    @Override
+    public DriverAuthInfoVo getDriverAuthInfo(Long id) {
+        Result<DriverAuthInfoVo> driverAuthInfo = client.getDriverAuthInfo(id);
+        return driverAuthInfo.getData();
+    }
+
+    @Override
+    public Boolean updateDriverAuthInfo(UpdateDriverAuthInfoForm form) {
+        Result<Boolean> booleanResult = client.updateDriverAuthInfo(form);
+        return booleanResult.getData();
+    }
+
+    @Override
+    public Boolean creatDriverFaceModel(DriverFaceModelForm form) {
+        Result<Boolean> booleanResult = client.creatDriverFaceModel(form);
+        return booleanResult.getData();
     }
 }

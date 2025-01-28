@@ -1,5 +1,6 @@
 package com.atguigu.daijia.customer.controller;
 
+import com.atguigu.daijia.common.login.GuiguLogin;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.customer.service.CustomerInfoService;
 import com.atguigu.daijia.model.entity.customer.CustomerInfo;
@@ -29,7 +30,7 @@ public class CustomerInfoController {
 	public Result<Long> login(@PathVariable("code") String code) throws WxErrorException {
 		return Result.ok(infoService.login(code));
 	}
-
+	@GuiguLogin
 	//用VO封装
 	@Operation(summary = "获取客户基本信息")
 	@GetMapping("/getCustomerLoginInfo/{customerId}")
