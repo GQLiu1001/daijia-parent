@@ -53,6 +53,7 @@ public class DriverController {
     @Operation(summary = "更新司机认证信息")
     @PostMapping("/updateDriverAuthInfo")
     public Result<Boolean> updateDriverAuthInfo(@RequestBody UpdateDriverAuthInfoForm form) {
+        //因为ThreadLocal只能单服务调用所以先在web服务里取出id
         form.setDriverId(AuthContextHolder.getUserId());
         return Result.ok(driverService.updateDriverAuthInfo(form));
     }
