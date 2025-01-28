@@ -25,23 +25,23 @@ public class GuiguLoginAspect {
     //环绕通知，登录判断
     //切入点表达式：指定对哪些规则的方法进行增强
     @Around("execution(* com.atguigu.daijia.*.controller.*.*(..)) && @annotation(guiguLogin)")
-    public Object login(ProceedingJoinPoint proceedingJoinPoint,GuiguLogin guiguLogin)  throws Throwable {
+    public Object login(ProceedingJoinPoint proceedingJoinPoint, GuiguLogin guiguLogin) throws Throwable {
         //1 获取request对象
         RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-        ServletRequestAttributes sra = (ServletRequestAttributes)attributes;
+        ServletRequestAttributes sra = (ServletRequestAttributes) attributes;
         HttpServletRequest request = sra.getRequest();
         //2 从请求头获取token
         String token = request.getHeader("token");
         System.out.println("AOP token:" + token);
         //3 判断token是否为空，如果为空，返回登录提示
-        if(token == null) {
+        if (token == null) {
             throw new GuiguException(ResultCodeEnum.LOGIN_AUTH);
         }
         //4 token不为空，查询redis
         Object o = redisTemplate.opsForValue().get(token);
         //5 查询redis对应用户id，把用户id放到ThreadLocal里面
         AuthContextHolder.setUserId(Long.valueOf(o.toString()));
-        System.out.println("AOP的用户id"+AuthContextHolder.getUserId());
+        System.out.println("AOP的用户id" + AuthContextHolder.getUserId());
         //6 执行业务方法
         return proceedingJoinPoint.proceed();
     }

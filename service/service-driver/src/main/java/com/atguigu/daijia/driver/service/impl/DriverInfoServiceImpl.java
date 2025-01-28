@@ -72,7 +72,7 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
             String phone = String.format("%11d", new Random().nextInt(10000));
             driverInfo.setPhone(phone);
             driverInfo.setAvatarUrl("https://oss.aliyuncs.com/aliyun_id_photo_bucket/default_handsome.jpg");
-            driverInfo.setNickname("newDriver"+"phone");
+            driverInfo.setNickname("newDriver" + "phone");
             driverInfoMapper.insert(driverInfo);
         }
         DriverLoginLog driverLoginLog = new DriverLoginLog();
@@ -102,7 +102,7 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         DriverInfo driverInfo = driverInfoMapper.selectById(driverId);
         //driverAuthInfoVo比driverInfo多了照片url地址
         DriverAuthInfoVo driverAuthInfoVo = new DriverAuthInfoVo();
-        BeanUtils.copyProperties(driverInfo,driverAuthInfoVo);
+        BeanUtils.copyProperties(driverInfo, driverAuthInfoVo);
         driverAuthInfoVo.setIdcardBackShowUrl(cosService.getUrl(driverAuthInfoVo.getIdcardBackUrl()));
         driverAuthInfoVo.setIdcardFrontShowUrl(cosService.getUrl(driverAuthInfoVo.getIdcardFrontUrl()));
         driverAuthInfoVo.setIdcardHandShowUrl(cosService.getUrl(driverAuthInfoVo.getIdcardHandUrl()));
@@ -111,18 +111,19 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         driverAuthInfoVo.setDriverLicenseHandShowUrl(cosService.getUrl(driverAuthInfoVo.getDriverLicenseHandUrl()));
         return driverAuthInfoVo;
     }
+
     @Override
     public Boolean updateDriverAuthInfo(UpdateDriverAuthInfoForm form) {
         Long driverId = form.getDriverId();
-        System.out.println("service包的updateDriverAuthInfo的userId"+driverId);
+        System.out.println("service包的updateDriverAuthInfo的userId" + driverId);
         //获取司机的id
         //就是完善认证信息的图片 身份证信息啥的 (均为url)
         //修改 把前端回复的表单信息加入driverInfo
         DriverInfo driverInfo = driverInfoMapper.selectById(driverId);
         System.out.println(driverInfo.getId());
         driverInfo.setId(driverId);
-        System.out.println("updateDriverAuthInfo取到的driverInfo是"+driverInfo);
-        BeanUtils.copyProperties(form,driverInfo);
+        System.out.println("updateDriverAuthInfo取到的driverInfo是" + driverInfo);
+        BeanUtils.copyProperties(form, driverInfo);
         int i = driverInfoMapper.updateById(driverInfo);
         return i > 0;
     }
@@ -133,9 +134,9 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         //根据司机id获取司机信息
         DriverInfo driverInfo =
                 driverInfoMapper.selectById(driverFaceModelForm.getDriverId());
-        System.out.println("driverFaceModelForm.getDriverId()"+driverFaceModelForm.getDriverId());
-        System.out.println("driverInfo"+driverInfo);
-        try{
+        System.out.println("driverFaceModelForm.getDriverId()" + driverFaceModelForm.getDriverId());
+        System.out.println("driverInfo" + driverInfo);
+        try {
 
             // 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
             // 代码泄露可能会导致 SecretId 和 SecretKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，建议采用更安全的方式来使用密钥，请参见：https://cloud.tencent.com/document/product/1278/85305
@@ -168,7 +169,7 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
             // 输出json格式的字符串回包
             System.out.println(AbstractModel.toJsonString(resp));
             String faceId = resp.getFaceId();
-            if(StringUtils.hasText(faceId)) {
+            if (StringUtils.hasText(faceId)) {
                 driverInfo.setFaceModelId(faceId);
                 driverInfoMapper.updateById(driverInfo);
             }

@@ -14,9 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class CosServiceImpl implements CosService {
     @Resource
     private CosFeignClient client;
+
     @Override
     public CosUploadVo upload(MultipartFile file, String url) {
-        return client.upload(file,url);
+        return client.upload(file, url);
     }
 
 }

@@ -20,16 +20,18 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Tag(name = "司机API接口管理")
 @RestController
-@RequestMapping(value="/driver")
+@RequestMapping(value = "/driver")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class DriverController {
     @Resource
     private DriverService driverService;
+
     @Operation(summary = "授权登录")
     @GetMapping("/login/{code}")
-        public Result<String> login(@PathVariable("code") String code) {
+    public Result<String> login(@PathVariable("code") String code) {
         return Result.ok(driverService.login(code));
     }
+
     @GuiguLogin
     @Operation(summary = "获取司机登录信息")
     @GetMapping("/getDriverLoginInfo")
@@ -38,6 +40,7 @@ public class DriverController {
         //调用service 返回VO对象
         return Result.ok(driverLoginInfo);
     }
+
     @GuiguLogin
     @Operation(summary = "获取司机认证信息")
     @GetMapping("/getDriverAuthInfo/{driverId}")
@@ -45,6 +48,7 @@ public class DriverController {
         DriverAuthInfoVo vo = driverService.getDriverAuthInfo(id);
         return Result.ok(vo);
     }
+
     @GuiguLogin
     @Operation(summary = "更新司机认证信息")
     @PostMapping("/updateDriverAuthInfo")
@@ -52,10 +56,11 @@ public class DriverController {
         form.setDriverId(AuthContextHolder.getUserId());
         return Result.ok(driverService.updateDriverAuthInfo(form));
     }
+
     @GuiguLogin
     @Operation(summary = "创建司机人脸模型")
     @PostMapping("/creatDriverFaceModel")
-    public Result<Boolean>  creatDriverFaceModel(@RequestBody DriverFaceModelForm form) {
+    public Result<Boolean> creatDriverFaceModel(@RequestBody DriverFaceModelForm form) {
         form.setDriverId(AuthContextHolder.getUserId());
         //都传的Base64
         return Result.ok(driverService.creatDriverFaceModel(form));

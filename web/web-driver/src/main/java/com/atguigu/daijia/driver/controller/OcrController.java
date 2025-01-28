@@ -18,18 +18,20 @@ import java.util.Map;
 @Slf4j
 @Tag(name = "腾讯云识别接口管理")
 @RestController
-@RequestMapping(value="/ocr")
+@RequestMapping(value = "/ocr")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class OcrController {
-	@Resource
+    @Resource
     private OcrService ocrService;
+
     @GuiguLogin
     @Operation(summary = "身份证识别")
     @PostMapping("/idCardOcr")
     public Result<IdCardOcrVo> idCardOcr(@RequestPart("file") MultipartFile file) {
-        IdCardOcrVo vo =  ocrService.idCardOcr(file);
+        IdCardOcrVo vo = ocrService.idCardOcr(file);
         return Result.ok(vo);
     }
+
     @GuiguLogin
     @Operation(summary = "驾驶证识别")
     @PostMapping("/driverLicenseOcr")

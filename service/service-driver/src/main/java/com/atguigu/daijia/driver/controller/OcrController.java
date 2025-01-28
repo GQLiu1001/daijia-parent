@@ -22,16 +22,18 @@ import java.io.IOException;
 @Slf4j
 @Tag(name = "腾讯云识别接口管理")
 @RestController
-@RequestMapping(value="/ocr")
+@RequestMapping(value = "/ocr")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class OcrController {
     @Resource
     private OcrService ocrService;
+
     @Operation(summary = "身份证识别")
     @PostMapping("/idCardOcr")
     public IdCardOcrVo idCardOcr(@RequestPart MultipartFile file) throws TencentCloudSDKException, IOException {
         return ocrService.idCardOcr(file);
     }
+
     @Operation(summary = "驾驶证识别")
     @PostMapping("/driverLicenseOcr")
     public DriverLicenseOcrVo driverLicenseOcr(MultipartFile file) throws TencentCloudSDKException, IOException {

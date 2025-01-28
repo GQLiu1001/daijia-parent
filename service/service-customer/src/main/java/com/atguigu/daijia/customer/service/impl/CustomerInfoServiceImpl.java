@@ -32,6 +32,7 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
     private CustomerInfoMapper infoMapper;
     @Resource
     private CustomerLoginLogMapper customerLoginLogMapper;
+
     @Override
     public Long login(String code) throws WxErrorException {
         String openid = null;
@@ -52,7 +53,7 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
             String phone = String.format("%11d", new Random().nextInt(10000));
             customerInfo.setPhone(phone);
             customerInfo.setAvatarUrl("https://oss.aliyuncs.com/aliyun_id_photo_bucket/default_handsome.jpg");
-            customerInfo.setNickname("newGuy"+"phone");
+            customerInfo.setNickname("newGuy" + "phone");
             infoMapper.insert(customerInfo);
         }
         CustomerLoginLog customerLoginLog = new CustomerLoginLog();

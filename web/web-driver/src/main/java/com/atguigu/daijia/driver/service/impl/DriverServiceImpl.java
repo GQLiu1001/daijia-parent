@@ -28,24 +28,25 @@ public class DriverServiceImpl implements DriverService {
     private DriverInfoFeignClient client;
     @Resource
     private RedisTemplate redisTemplate;
+
     @Override
     public String login(String code) {
         //1.拿着code进行远程调用 返回用户id
         Result<Long> login = client.login(code);
         //2.返回失败，返回错误提示
         if (login.getCode() != 200) {
-            throw  new GuiguException(ResultCodeEnum.DATA_ERROR);
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
         //3.获取返回id
         Long id = login.getData();
         //3.id为空 错误提示
         if (id == null) {
-            throw  new GuiguException(ResultCodeEnum.DATA_ERROR);
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
         //4.token字符串
         String token = UUID.randomUUID().toString().replaceAll("-", "");
         //5.token放入redis 设置时限
-        redisTemplate.opsForValue().set(token,id.toString(),1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set(token, id.toString(), 1, TimeUnit.DAYS);
         //6.返回token
         return token;
     }
@@ -55,10 +56,10 @@ public class DriverServiceImpl implements DriverService {
         String o = (String) redisTemplate.opsForValue().get(token);
         Result<DriverLoginVo> driverInfo = client.getDriverInfo(Long.valueOf(o));
         if (driverInfo.getCode() != 200) {
-            throw  new GuiguException(ResultCodeEnum.DATA_ERROR);
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
         if (driverInfo.getData() == null) {
-            throw  new GuiguException(ResultCodeEnum.DATA_ERROR);
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
         return driverInfo.getData();
     }

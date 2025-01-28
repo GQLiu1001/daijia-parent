@@ -20,11 +20,12 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "司机API接口管理")
 @RestController
-@RequestMapping(value="/driver/info")
+@RequestMapping(value = "/driver/info")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class DriverInfoController {
     @Resource
     private DriverInfoService driverInfoService;
+
     @Operation(summary = "授权登录")
     @GetMapping("/login/{code}")
     public Result<Long> login(@PathVariable("code") String code) throws WxErrorException {
@@ -48,7 +49,7 @@ public class DriverInfoController {
 
     @Operation(summary = "更新司机认证信息")
     @PostMapping("/updateDriverAuthInfo")
-    public Result<Boolean> updateDriverAuthInfo(@RequestBody UpdateDriverAuthInfoForm form){
+    public Result<Boolean> updateDriverAuthInfo(@RequestBody UpdateDriverAuthInfoForm form) {
         Boolean b = driverInfoService.updateDriverAuthInfo(form);
         return Result.ok(b);
     }

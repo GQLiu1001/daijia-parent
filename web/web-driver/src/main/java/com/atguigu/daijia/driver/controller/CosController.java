@@ -16,19 +16,20 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Tag(name = "腾讯云cos上传接口管理")
 @RestController
-@RequestMapping(value="/cos")
+@RequestMapping(value = "/cos")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class CosController {
     @Resource
     private CosService cosService;
+
     //文件上传接口
     @GuiguLogin
     @Operation(summary = "上传文件")
     @PostMapping("/upload") //url 是 上传地址
     public Result<CosUploadVo> upload(@RequestPart("file") MultipartFile file,
-                                      @RequestParam(name = "path",defaultValue = "auth") String url) {
+                                      @RequestParam(name = "path", defaultValue = "auth") String url) {
         System.out.println(url);
-        CosUploadVo vo = cosService.upload(file,url);
+        CosUploadVo vo = cosService.upload(file, url);
         return Result.ok(vo);
     }
 

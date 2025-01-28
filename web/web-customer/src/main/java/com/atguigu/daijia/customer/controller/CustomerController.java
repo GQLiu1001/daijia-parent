@@ -29,11 +29,13 @@ public class CustomerController {
     private CustomerService customerService;
     @Resource
     private CustomerInfoFeignClient customerInfoFeignClient;
+
     @Operation(summary = "授权登录")
     @GetMapping("/login/{code}")
     public Result<String> login(@PathVariable("code") String code) {
         return Result.ok(customerService.login(code));
     }
+
     //需要登陆判断的都要这个注解
     @GuiguLogin
     @Operation(summary = "获取客户登录信息")

@@ -38,7 +38,8 @@ public class CosServiceImpl implements CosService {
     private TencentCloudProperties properties;
     @Autowired
     private TencentCloudProperties tencentCloudProperties;
-    public COSClient getCosClient(){
+
+    public COSClient getCosClient() {
         // 1 初始化用户身份信息（secretId, secretKey）。
         // SECRETID 和 SECRETKEY 请登录访问管理控制台 https://console.cloud.tencent.com/cam/capi 进行查看和管理
         String secretId = properties.getSecretId();
@@ -55,8 +56,9 @@ public class CosServiceImpl implements CosService {
         COSClient cosClient = new COSClient(cred, config);
         return cosClient;
     }
+
     @Override
-    public CosUploadVo upload(MultipartFile file ,String url) {
+    public CosUploadVo upload(MultipartFile file, String url) {
 
         //元数据信息
         ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -66,9 +68,9 @@ public class CosServiceImpl implements CosService {
         // 01.jpg 假如传入的图片
         // /driver/auth/O09173.jpg  uploadPath在腾讯云的路径
         String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-        String uploadPath ="/driver/"+url+"/"+ UUID.randomUUID().toString().replaceAll("-","")+fileType;
+        String uploadPath = "/driver/" + url + "/" + UUID.randomUUID().toString().replaceAll("-", "") + fileType;
         PutObjectRequest putObjectRequest = null;
-        try{
+        try {
             //获取桶名
             putObjectRequest = new PutObjectRequest(tencentCloudProperties.getBucketPrivate(),
                     uploadPath,
@@ -93,9 +95,9 @@ public class CosServiceImpl implements CosService {
 
     @Override
     public String getUrl(String path) {
-        COSClient cosClient =this.getCosClient();
+        COSClient cosClient = this.getCosClient();
         GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(
-                tencentCloudProperties.getBucketPrivate(), path , HttpMethodName.GET
+                tencentCloudProperties.getBucketPrivate(), path, HttpMethodName.GET
         );
         Date expirationDate = new Date(System.currentTimeMillis() + 30 * 60 * 1000);
         request.setExpiration(expirationDate);
