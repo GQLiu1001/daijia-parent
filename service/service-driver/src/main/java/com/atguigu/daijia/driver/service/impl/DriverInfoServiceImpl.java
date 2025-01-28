@@ -111,7 +111,6 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         driverAuthInfoVo.setDriverLicenseHandShowUrl(cosService.getUrl(driverAuthInfoVo.getDriverLicenseHandUrl()));
         return driverAuthInfoVo;
     }
-
     @Override
     public Boolean updateDriverAuthInfo(UpdateDriverAuthInfoForm form) {
         Long driverId = form.getDriverId();
