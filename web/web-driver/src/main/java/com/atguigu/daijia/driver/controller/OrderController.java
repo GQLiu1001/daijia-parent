@@ -19,14 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class OrderController {
 
-    //先把用户订单状态设置为目前没有订单的状态
-    @Operation(summary = "查找目前乘客订单")
-    @GuiguLogin
-    @GetMapping("/searchCustomerCurrentOrder")
-    public Result<CurrentOrderInfoVo> searchCustomerCurrentOrder(){
-        CurrentOrderInfoVo vo = new CurrentOrderInfoVo();
-        vo.setIsHasCurrentOrder(false);
-        return Result.ok(vo);
-    }
+
 }
 

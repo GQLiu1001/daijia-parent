@@ -32,7 +32,6 @@ public class CustomerInfoController {
     }
 
     //用VO封装
-    @GuiguLogin
     @Operation(summary = "获取客户基本信息")
     @GetMapping("/getCustomerLoginInfo/{customerId}")
     public Result<CustomerLoginVo> getCustomerInfo(@PathVariable Long customerId) {
