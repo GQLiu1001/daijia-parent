@@ -1,6 +1,7 @@
 package com.atguigu.daijia.driver.service;
 
 import com.atguigu.daijia.model.entity.driver.DriverInfo;
+import com.atguigu.daijia.model.entity.driver.DriverSet;
 import com.atguigu.daijia.model.form.driver.DriverFaceModelForm;
 import com.atguigu.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.atguigu.daijia.model.vo.customer.CustomerLoginVo;
@@ -21,4 +22,6 @@ public interface DriverInfoService extends IService<DriverInfo> {
     Boolean updateDriverAuthInfo(UpdateDriverAuthInfoForm form);
 
     Boolean creatDriverFaceModel(DriverFaceModelForm form) throws TencentCloudSDKException;
+
+    DriverSet getDriverSet(Long driverId);
 }

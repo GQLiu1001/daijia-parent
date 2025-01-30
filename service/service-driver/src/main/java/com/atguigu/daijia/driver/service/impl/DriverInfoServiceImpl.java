@@ -2,19 +2,21 @@ package com.atguigu.daijia.driver.service.impl;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
-import com.atguigu.daijia.common.login.GuiguLogin;
 import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.driver.config.TencentCloudProperties;
 import com.atguigu.daijia.driver.mapper.DriverInfoMapper;
 import com.atguigu.daijia.driver.mapper.DriverLoginLogMapper;
+import com.atguigu.daijia.driver.mapper.DriverSetMapper;
 import com.atguigu.daijia.driver.service.CosService;
 import com.atguigu.daijia.driver.service.DriverInfoService;
 import com.atguigu.daijia.model.entity.driver.DriverInfo;
 import com.atguigu.daijia.model.entity.driver.DriverLoginLog;
+import com.atguigu.daijia.model.entity.driver.DriverSet;
 import com.atguigu.daijia.model.form.driver.DriverFaceModelForm;
 import com.atguigu.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.atguigu.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.atguigu.daijia.model.vo.driver.DriverLoginVo;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tencentcloudapi.common.Credential;
@@ -24,8 +26,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.filter.OrderedFormContentFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
@@ -37,7 +37,7 @@ import java.util.Random;
 
 @Slf4j
 @Service
-@SuppressWarnings({"unchecked", "rawtypes"})
+//@SuppressWarnings({"unchecked", "rawtypes"})
 public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverInfo> implements DriverInfoService {
     @Resource
     private WxMaService wxMaService;
@@ -49,12 +49,13 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
     private CosService cosService;
     @Resource
     private TencentCloudProperties tencentCloudProperties;
-    @Autowired
-    private OrderedFormContentFilter formContentFilter;
+    @Resource
+    private DriverSetMapper driverSetMapper;
+
 
     @Override
     public Long login(String code) throws WxErrorException {
-        String openid = null;
+        String openid;
         //1.获取code值 使用微信工具包对象(WxMaService) 获取微信唯一标识 openid
         WxMaJscode2SessionResult sessionInfo = wxMaService.getUserService().getSessionInfo(code);
         openid = sessionInfo.getOpenid();
@@ -137,7 +138,6 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         System.out.println("driverFaceModelForm.getDriverId()" + driverFaceModelForm.getDriverId());
         System.out.println("driverInfo" + driverInfo);
         try {
-
             // 实例化一个认证对象，入参需要传入腾讯云账户 SecretId 和 SecretKey，此处还需注意密钥对的保密
             // 代码泄露可能会导致 SecretId 和 SecretKey 泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，建议采用更安全的方式来使用密钥，请参见：https://cloud.tencent.com/document/product/1278/85305
             // 密钥可前往官网控制台 https://console.cloud.tencent.com/cam/capi 进行获取
@@ -163,7 +163,6 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
             req.setUniquePersonControl(4L);
             req.setPersonName(driverInfo.getName());
             req.setImage(driverFaceModelForm.getImageBase64());
-
             // 返回的resp是一个CreatePersonResponse的实例，与请求对象对应
             CreatePersonResponse resp = client.CreatePerson(req);
             // 输出json格式的字符串回包
@@ -178,5 +177,12 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
             return false;
         }
         return true;
+    }
+
+    @Override
+    public DriverSet getDriverSet(Long driverId) {
+        LambdaQueryWrapper<DriverSet> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DriverSet::getDriverId, driverId);
+        return driverSetMapper.selectOne(queryWrapper);
     }
 }

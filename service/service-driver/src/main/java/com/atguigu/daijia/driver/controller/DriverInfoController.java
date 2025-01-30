@@ -1,11 +1,10 @@
 package com.atguigu.daijia.driver.controller;
 
-import com.atguigu.daijia.common.login.GuiguLogin;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.driver.service.DriverInfoService;
+import com.atguigu.daijia.model.entity.driver.DriverSet;
 import com.atguigu.daijia.model.form.driver.DriverFaceModelForm;
 import com.atguigu.daijia.model.form.driver.UpdateDriverAuthInfoForm;
-import com.atguigu.daijia.model.vo.customer.CustomerLoginVo;
 import com.atguigu.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.atguigu.daijia.model.vo.driver.DriverLoginVo;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
@@ -14,14 +13,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Tag(name = "司机API接口管理")
 @RestController
 @RequestMapping(value = "/driver/info")
-@SuppressWarnings({"unchecked", "rawtypes"})
+//@SuppressWarnings({"unchecked", "rawtypes"})
 public class DriverInfoController {
     @Resource
     private DriverInfoService driverInfoService;
@@ -61,5 +59,10 @@ public class DriverInfoController {
         return Result.ok(b);
     }
 
+    @Operation(summary = "获取司机设置信息")
+    @GetMapping("/getDriverSet/{driverId}")
+    public Result<DriverSet> getDriverSet(@PathVariable Long driverId) {
+        return Result.ok(driverInfoService.getDriverSet(driverId));
+    }
 }
 
