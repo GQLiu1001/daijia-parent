@@ -2,6 +2,8 @@ package com.atguigu.daijia.driver.service.impl;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
+import com.atguigu.daijia.common.execption.GuiguException;
+import com.atguigu.daijia.common.result.ResultCodeEnum;
 import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.driver.config.TencentCloudProperties;
 import com.atguigu.daijia.driver.mapper.DriverInfoMapper;
@@ -179,10 +181,11 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         return true;
     }
 
+
     @Override
     public DriverSet getDriverSet(Long driverId) {
-        LambdaQueryWrapper<DriverSet> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(DriverSet::getDriverId, driverId);
-        return driverSetMapper.selectOne(queryWrapper);
+        LambdaQueryWrapper<DriverSet> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DriverSet::getDriverId,driverId);
+        return driverSetMapper.selectOne(wrapper);
     }
 }

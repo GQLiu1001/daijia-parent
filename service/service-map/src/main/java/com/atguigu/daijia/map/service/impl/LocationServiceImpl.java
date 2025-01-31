@@ -94,11 +94,11 @@ public class LocationServiceImpl implements LocationService {
 
                 //获取司机id
                 Long driverId = Long.parseLong(item.getContent().getName());
-
+                System.out.println("司机的id" + driverId);
                 //远程调用，根据司机id个性化设置信息
                 Result<DriverSet> driverSetResult = driverInfoFeignClient.getDriverSet(driverId);
                 DriverSet driverSet = driverSetResult.getData();
-
+                System.out.println("driverSet"+driverSet);
                 //判断订单里程order_distance
                 BigDecimal orderDistance = driverSet.getOrderDistance();
                 //orderDistance==0，司机没有限制的

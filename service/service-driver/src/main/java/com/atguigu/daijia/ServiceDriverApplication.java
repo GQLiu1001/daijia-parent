@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-@MapperScan("com.atguigu.daijia")
+@MapperScan("com.atguigu.daijia.driver.mapper")
 public class ServiceDriverApplication {
 
     public static void main(String[] args) {
