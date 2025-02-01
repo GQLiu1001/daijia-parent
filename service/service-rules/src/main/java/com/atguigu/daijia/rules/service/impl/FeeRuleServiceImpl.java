@@ -33,10 +33,12 @@ public class FeeRuleServiceImpl implements FeeRuleService {
         Date startDate = calculateOrderFeeForm.getStartTime();
         request.setStartTime(new DateTime(startDate).toString("HH:mm:ss"));
         request.setWaitMinute(calculateOrderFeeForm.getWaitMinute());
+        System.out.println("输入对象"+request);
         //Drools使用
         KieSession kieSession = kieContainer.newKieSession();
         //封装返回对象
         FeeRuleResponse response = new FeeRuleResponse();
+        System.out.println("返回对象"+response);
         //设置全局变量，在drl规则里可以设置进去
         kieSession.setGlobal("feeRuleResponse", response);
         kieSession.insert(request);
@@ -45,6 +47,7 @@ public class FeeRuleServiceImpl implements FeeRuleService {
         //封装VO返回
         FeeRuleResponseVo responseVo = new FeeRuleResponseVo();
         BeanUtils.copyProperties(response, responseVo);
+        System.out.println("计算总金额: " + responseVo.getTotalAmount());
         return responseVo;
     }
 }

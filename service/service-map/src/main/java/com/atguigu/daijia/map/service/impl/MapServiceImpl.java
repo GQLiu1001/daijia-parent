@@ -77,9 +77,11 @@ public class MapServiceImpl implements MapService {
         System.out.println("取到的route"+route);
         DrivingLineVo drivingLineVo = new DrivingLineVo();
         //取JSON里叫distance的value封装为BigDecimal类型赋予drivingLineVo.setDistance 一般都BigDecimal
-        drivingLineVo.setDistance(route.getBigDecimal("distance")
+/*        drivingLineVo.setDistance(route.getBigDecimal("distance")
                         .divideToIntegralValue(new BigDecimal(1000))
-                        .setScale(2, RoundingMode.HALF_DOWN));
+                        .setScale(2, RoundingMode.HALF_DOWN));*/
+        drivingLineVo.setDistance(route.getBigDecimal("distance")
+                .divide(new BigDecimal(1000), 2, RoundingMode.HALF_DOWN));  // 保留两位小数
         drivingLineVo.setDuration(route.getBigDecimal("duration"));
         drivingLineVo.setPolyline(route.getJSONArray("polyline"));
         System.out.println("封装的drivingLineVo"+drivingLineVo);
