@@ -13,6 +13,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.atguigu.daijia</groupId>
             <artifactId>common-util</artifactId>
             <version>1.0</version>

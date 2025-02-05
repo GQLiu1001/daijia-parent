@@ -122,5 +122,7 @@ public class DriverController {
         Long driverId = AuthContextHolder.getUserId();
         return Result.ok(driverService.stopService(driverId));
     }
+
+
 }
 
