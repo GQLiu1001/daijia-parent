@@ -60,7 +60,7 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public DriverLoginVo getInfo(String token) {
         String o = (String) redisTemplate.opsForValue().get(token);
-        Result<DriverLoginVo> driverInfo = client.getDriverInfo(Long.valueOf(o));
+        Result<DriverLoginVo> driverInfo = client.getDriverLoginInfo(Long.valueOf(o));
         if (driverInfo.getCode() != 200) {
             throw new GuiguException(ResultCodeEnum.DATA_ERROR);
         }
@@ -109,7 +109,7 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public Boolean startService(Long driverId) {
         //1 判断完成认证
-        DriverLoginVo driverLoginVo = client.getDriverInfo(driverId).getData();
+        DriverLoginVo driverLoginVo = client.getDriverLoginInfo(driverId).getData();
         if(driverLoginVo.getAuthStatus()!=2) {
             throw new GuiguException(ResultCodeEnum.AUTH_ERROR);
         }

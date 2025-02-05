@@ -21,7 +21,13 @@
 			<artifactId>rabbit-util</artifactId>
 			<version>1.0</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.atguigu.daijia</groupId>
+            <artifactId>service-map</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 
 	<build>

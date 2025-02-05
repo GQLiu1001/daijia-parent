@@ -20,7 +20,7 @@ public interface DriverInfoFeignClient {
     Result<Long> login(@PathVariable("code") String code);
 
     @GetMapping("/driver/info/getDriverLoginInfo/{driverId}")
-    Result<DriverLoginVo> getDriverInfo(@PathVariable Long driverId);
+    Result<DriverLoginVo> getDriverLoginInfo(@PathVariable Long driverId);
 
     @GetMapping("/driver/info/getDriverAuthInfo/{driverId}")
     Result<DriverAuthInfoVo> getDriverAuthInfo(@PathVariable("driverId") Long id);
@@ -42,4 +42,7 @@ public interface DriverInfoFeignClient {
 
     @GetMapping("/driver/info/updateServiceStatus/{driverId}/{status}")
     Result<Boolean> updateServiceStatus(@PathVariable("driverId") Long driverId, @PathVariable("status") Integer status);
+
+    @GetMapping("/driver/info/getDriverInfo/{driverId}")
+    Result<DriverInfoVo> getDriverInfo(@PathVariable("driverId") Long driverId);
 }

@@ -3,12 +3,11 @@ package com.atguigu.daijia.map.client;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.model.form.map.SearchNearByDriverForm;
 import com.atguigu.daijia.model.form.map.UpdateDriverLocationForm;
+import com.atguigu.daijia.model.form.map.UpdateOrderLocationForm;
 import com.atguigu.daijia.model.vo.map.NearByDriverVo;
+import com.atguigu.daijia.model.vo.map.OrderLocationVo;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,4 +25,9 @@ public interface LocationFeignClient {
     Result<List<NearByDriverVo>> searchNearByDriver(@RequestBody
                                                     SearchNearByDriverForm searchNearByDriverForm);
 
+    @PostMapping("/map/location/updateOrderLocationToCache")
+    Result<Boolean> updateOrderLocationToCache(@RequestBody UpdateOrderLocationForm updateOrderLocationForm);
+
+    @GetMapping("/map/location/getCacheOrderLocation/{orderId}")
+    Result<OrderLocationVo> getCacheOrderLocation(@PathVariable("orderId") Long orderId);
 }

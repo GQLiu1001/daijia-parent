@@ -38,5 +38,7 @@ public class CustomerInfoController {
         CustomerLoginVo customerLoginVo = infoService.getCustomerInfo(customerId);
         return Result.ok(customerLoginVo);
     }
+
+
 }
 
