@@ -1,9 +1,5 @@
 package com.atguigu.daijia.dispatch.xxl.client;
 
-import com.atguigu.daijia.dispatch.xxl.config.XxlJobClientConfig;
-import jakarta.annotation.Resource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.daijia.common.execption.GuiguException;
 import com.atguigu.daijia.common.result.ResultCodeEnum;
@@ -18,13 +14,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
 @Slf4j
 @Component
 public class XxlJobClient {
-    @Resource
+
+    @Autowired
     private XxlJobClientConfig xxlJobClientConfig;
+
     //客户端调用服务端里面的方法
-    @Resource
+    @Autowired
     private RestTemplate restTemplate;
 
     @SneakyThrows

@@ -6,7 +6,6 @@ import com.atguigu.daijia.model.vo.dispatch.NewOrderTaskVo;
 import com.atguigu.daijia.model.vo.order.NewOrderDataVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,7 @@ import java.util.List;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class NewOrderController {
 
-    @Resource
+    @Autowired
     private NewOrderService newOrderService;
 
     //创建并启动任务调度方法

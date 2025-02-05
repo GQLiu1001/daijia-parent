@@ -1,6 +1,7 @@
 package com.atguigu.daijia.map.client;
 
 import com.atguigu.daijia.common.result.Result;
+import com.atguigu.daijia.model.form.map.SearchNearByDriverForm;
 import com.atguigu.daijia.model.form.map.UpdateDriverLocationForm;
 import com.atguigu.daijia.model.vo.map.NearByDriverVo;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -20,6 +21,9 @@ public interface LocationFeignClient {
     @DeleteMapping("/map/location/removeDriverLocation/{driverId}")
     Result<Boolean> removeDriverLocation(@PathVariable("driverId") Long driverId);
 
+    //搜索附近满足条件的司机
     @PostMapping("/map/location/searchNearByDriver")
-    Result<List<NearByDriverVo>> searchNearByDriver();
+    Result<List<NearByDriverVo>> searchNearByDriver(@RequestBody
+                                                    SearchNearByDriverForm searchNearByDriverForm);
+
 }

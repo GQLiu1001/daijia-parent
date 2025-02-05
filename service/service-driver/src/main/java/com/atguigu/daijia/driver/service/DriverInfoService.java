@@ -24,4 +24,10 @@ public interface DriverInfoService extends IService<DriverInfo> {
     Boolean creatDriverFaceModel(DriverFaceModelForm form) throws TencentCloudSDKException;
 
     DriverSet getDriverSet(Long driverId);
+
+    Boolean isFaceRecognition(Long driverId);
+
+    Boolean verifyDriverFace(DriverFaceModelForm driverFaceModelForm);
+
+    Boolean updateServiceStatus(Long driverId, Integer status);
 }

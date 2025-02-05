@@ -5,8 +5,10 @@ import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.common.result.ResultCodeEnum;
 import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.customer.client.CustomerInfoFeignClient;
+import com.atguigu.daijia.dispatch.client.NewOrderFeignClient;
 import com.atguigu.daijia.driver.client.DriverInfoFeignClient;
 import com.atguigu.daijia.driver.service.DriverService;
+import com.atguigu.daijia.map.client.LocationFeignClient;
 import com.atguigu.daijia.model.form.driver.DriverFaceModelForm;
 import com.atguigu.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.atguigu.daijia.model.vo.driver.DriverAuthInfoVo;
@@ -28,6 +30,10 @@ public class DriverServiceImpl implements DriverService {
     private DriverInfoFeignClient client;
     @Resource
     private RedisTemplate redisTemplate;
+    @Resource
+    private LocationFeignClient locationClient;
+    @Resource
+    private NewOrderFeignClient newOrderClient;
 
     @Override
     public String login(String code) {
@@ -64,10 +70,16 @@ public class DriverServiceImpl implements DriverService {
         return driverInfo.getData();
     }
 
+//    @Override
+//    public DriverAuthInfoVo getDriverAuthInfo(Long id) {
+//        Result<DriverAuthInfoVo> driverAuthInfo = client.getDriverAuthInfo(id);
+//        return driverAuthInfo.getData();
+//    }
+    //司机认证信息
     @Override
-    public DriverAuthInfoVo getDriverAuthInfo(Long id) {
-        Result<DriverAuthInfoVo> driverAuthInfo = client.getDriverAuthInfo(id);
-        return driverAuthInfo.getData();
+    public DriverAuthInfoVo getDriverAuthInfo(Long driverId) {
+        Result<DriverAuthInfoVo> authInfoVoResult = client.getDriverAuthInfo(driverId);
+        return authInfoVoResult.getData();
     }
 
     @Override
@@ -80,5 +92,54 @@ public class DriverServiceImpl implements DriverService {
     public Boolean creatDriverFaceModel(DriverFaceModelForm form) {
         Result<Boolean> booleanResult = client.creatDriverFaceModel(form);
         return booleanResult.getData();
+    }
+
+    @Override
+    public Boolean isFaceRecognition(Long driverId) {
+        return client.isFaceRecognition(driverId).getData();
+    }
+
+    @Override
+    public Boolean verifyDriverFace(DriverFaceModelForm driverFaceModelForm) {
+        Result<Boolean> booleanResult = client.verifyDriverFace(driverFaceModelForm);
+        return booleanResult.getData();
+    }
+
+    //开始接单服务
+    @Override
+    public Boolean startService(Long driverId) {
+        //1 判断完成认证
+        DriverLoginVo driverLoginVo = client.getDriverInfo(driverId).getData();
+        if(driverLoginVo.getAuthStatus()!=2) {
+            throw new GuiguException(ResultCodeEnum.AUTH_ERROR);
+        }
+
+        //2 判断当日是否人脸识别
+        Boolean isFace = client.isFaceRecognition(driverId).getData();
+        if(!isFace) {
+            throw new GuiguException(ResultCodeEnum.FACE_ERROR);
+        }
+
+        //3 更新订单状态 1 开始接单
+        client.updateServiceStatus(driverId,1);
+
+        //4 删除redis司机位置信息 LocationFeignClient
+        locationClient.removeDriverLocation(driverId);
+
+        //5 清空司机临时队列数据 NewOrderFeignClient
+        newOrderClient.clearNewOrderQueueData(driverId);
+        return true;
+    }
+
+    //停止接单服务
+    @Override
+    public Boolean stopService(Long driverId) {
+        //更新司机的接单状态 0
+        client.updateServiceStatus(driverId,0);
+        //删除司机位置信息
+        locationClient.removeDriverLocation(driverId);
+        //清空司机临时队列
+        newOrderClient.clearNewOrderQueueData(driverId);
+        return true;
     }
 }
