@@ -1,7 +1,10 @@
 package com.atguigu.daijia.driver.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.atguigu.daijia.common.execption.GuiguException;
+import com.atguigu.daijia.common.result.ResultCodeEnum;
 import com.atguigu.daijia.driver.config.TencentCloudProperties;
+import com.atguigu.daijia.driver.service.CiService;
 import com.atguigu.daijia.driver.service.CosService;
 import com.atguigu.daijia.model.vo.driver.CosUploadVo;
 import com.qcloud.cos.COSClient;
@@ -38,7 +41,8 @@ public class CosServiceImpl implements CosService {
     private TencentCloudProperties properties;
     @Autowired
     private TencentCloudProperties tencentCloudProperties;
-
+    @Resource
+    private CiService ciService;
     public COSClient getCosClient() {
         // 1 初始化用户身份信息（secretId, secretKey）。
         // SECRETID 和 SECRETKEY 请登录访问管理控制台 https://console.cloud.tencent.com/cam/capi 进行查看和管理
@@ -84,6 +88,16 @@ public class CosServiceImpl implements CosService {
         PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest);//上传文件
         log.info(JSON.toJSONString(putObjectResult));
         cosClient.shutdown();
+
+
+        //图片审核
+        Boolean imageAuditing = ciService.imageAuditing(uploadPath);
+        if(!imageAuditing) {
+            //删除违规图片
+            cosClient.deleteObject(tencentCloudProperties.getBucketPrivate(),uploadPath);
+            throw new GuiguException(ResultCodeEnum.IMAGE_AUDITION_FAIL);
+        }
+
         //上传完返回一个VO对象 一个路径 一个回显地址
         CosUploadVo cosUploadVo = new CosUploadVo();
         cosUploadVo.setUrl(uploadPath);//上传路径 （腾讯云里的）
@@ -105,4 +119,6 @@ public class CosServiceImpl implements CosService {
         cosClient.shutdown();
         return url.toString();
     }
+
+
 }

@@ -16,4 +16,7 @@ public interface CustomerInfoFeignClient {
 
     @GetMapping("/customer/info/getCustomerLoginInfo/{customerId}")
     Result<CustomerLoginVo> getCustomerLoginInfo(@PathVariable("customerId") Long customerId);
+
+    @GetMapping("/customer/info/getCustomerOpenId/{customerId}")
+    Result<String> getCustomerOpenId(@PathVariable("customerId") Long customerId);
 }

@@ -10,4 +10,6 @@ public interface CustomerInfoService extends IService<CustomerInfo> {
     Long login(String code) throws WxErrorException;
 
     CustomerLoginVo getCustomerInfo(Long customerId);
+
+    String getCustomerOpenId(Long customerId);
 }

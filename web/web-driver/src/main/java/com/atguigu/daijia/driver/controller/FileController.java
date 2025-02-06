@@ -24,13 +24,20 @@ public class FileController {
     private CosService cosService;
 
     //文件上传接口
+//    @Operation(summary = "上传")
+//    //@GuiguLogin
+//    @PostMapping("/upload")
+//    public Result<String> upload(@RequestPart("file") MultipartFile file,
+//                                      @RequestParam(name = "path",defaultValue = "auth") String path) {
+//        CosUploadVo cosUploadVo = cosService.upload(file,path);
+//        return Result.ok(cosUploadVo.getShowUrl());
+//    }
+
     @Operation(summary = "上传")
-    //@GuiguLogin
     @PostMapping("/upload")
-    public Result<String> upload(@RequestPart("file") MultipartFile file,
-                                      @RequestParam(name = "path",defaultValue = "auth") String path) {
-        CosUploadVo cosUploadVo = cosService.upload(file,path);
-        return Result.ok(cosUploadVo.getShowUrl());
+    public Result<String> upload(@RequestPart("file") MultipartFile file) {
+        String url = fileService.upload(file);
+        return Result.ok(url);
     }
 
 }

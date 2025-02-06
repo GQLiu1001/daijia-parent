@@ -8,13 +8,16 @@ import com.atguigu.daijia.map.service.LocationService;
 import com.atguigu.daijia.model.form.customer.ExpectOrderForm;
 import com.atguigu.daijia.model.form.customer.SubmitOrderForm;
 import com.atguigu.daijia.model.form.map.CalculateDrivingLineForm;
+import com.atguigu.daijia.model.vo.base.PageVo;
 import com.atguigu.daijia.model.vo.customer.ExpectOrderVo;
 import com.atguigu.daijia.model.vo.driver.DriverInfoVo;
 import com.atguigu.daijia.model.vo.map.DrivingLineVo;
 import com.atguigu.daijia.model.vo.map.OrderLocationVo;
+import com.atguigu.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.atguigu.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.atguigu.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +92,27 @@ public class OrderController {
     @PostMapping("/calculateDrivingLine")
     public Result<DrivingLineVo> calculateDrivingLine(@RequestBody CalculateDrivingLineForm calculateDrivingLineForm) {
         return Result.ok(orderService.calculateDrivingLine(calculateDrivingLineForm));
+    }
+
+    @Operation(summary = "代驾服务：获取订单服务最后一个位置信息")
+    @GuiguLogin
+    @GetMapping("/getOrderServiceLastLocation/{orderId}")
+    public Result<OrderServiceLastLocationVo> getOrderServiceLastLocation(@PathVariable Long orderId) {
+        return Result.ok(orderService.getOrderServiceLastLocation(orderId));
+    }
+
+    @Operation(summary = "获取乘客订单分页列表")
+    @GuiguLogin
+    @GetMapping("findCustomerOrderPage/{page}/{limit}")
+    public Result<PageVo> findCustomerOrderPage(
+            @Parameter(name = "page", description = "当前页码", required = true)
+            @PathVariable Long page,
+
+            @Parameter(name = "limit", description = "每页记录数", required = true)
+            @PathVariable Long limit) {
+        Long customerId = AuthContextHolder.getUserId();
+        PageVo pageVo = orderService.findCustomerOrderPage(customerId, page, limit);
+        return Result.ok(pageVo);
     }
 }
 

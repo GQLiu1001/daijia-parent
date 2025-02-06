@@ -24,6 +24,7 @@ public class FeeRuleController {
     @Operation(summary = "计算订单费用")
     @PostMapping("/calculateOrderFee")
     public Result<FeeRuleResponseVo> calculateOrderFee(@RequestBody FeeRuleRequestForm calculateOrderFeeForm) {
+        System.out.println("service的calculateOrderFeeForm"+calculateOrderFeeForm);
         FeeRuleResponseVo feeRuleResponseVo = feeRuleService.calculateOrderFee(calculateOrderFeeForm);
         return Result.ok(feeRuleResponseVo);
     }

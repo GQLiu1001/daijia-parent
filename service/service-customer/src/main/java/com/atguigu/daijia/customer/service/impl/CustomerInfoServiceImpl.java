@@ -78,4 +78,12 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
         //返回
         return customerLoginVo;
     }
+
+    @Override
+    public String getCustomerOpenId(Long customerId) {
+        LambdaQueryWrapper<CustomerInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CustomerInfo::getId,customerId);
+        CustomerInfo customerInfo = infoMapper.selectOne(wrapper);
+        return customerInfo.getWxOpenId();
+    }
 }
