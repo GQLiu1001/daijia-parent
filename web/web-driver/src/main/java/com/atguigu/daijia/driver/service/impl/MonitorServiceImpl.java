@@ -7,10 +7,15 @@ import com.atguigu.daijia.model.entity.order.OrderMonitorRecord;
 import com.atguigu.daijia.model.form.order.OrderMonitorForm;
 import com.atguigu.daijia.model.vo.order.TextAuditingVo;
 import com.atguigu.daijia.order.client.OrderMonitorFeignClient;
+import io.minio.errors.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Slf4j
 @Service
@@ -24,7 +29,7 @@ public class MonitorServiceImpl implements MonitorService {
     private CiFeignClient ciFeignClient;
 
     @Override
-    public Boolean upload(MultipartFile file, OrderMonitorForm orderMonitorForm) {
+    public Boolean upload(MultipartFile file, OrderMonitorForm orderMonitorForm) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         //上传文件
         String url = fileService.upload(file);
 

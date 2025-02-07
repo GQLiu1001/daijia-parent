@@ -70,7 +70,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Boolean robNewOrder(Long driverId, Long orderId) {
-        Result<Boolean> booleanResult = orderInfoFeignClient.robNewOrder(orderId, driverId);
+        System.out.println("传到后端的driverId=" + driverId + ", orderId=" + orderId);
+        Result<Boolean> booleanResult = orderInfoFeignClient.robNewOrder(driverId,orderId);
         return booleanResult.getData();
     }
 
@@ -82,9 +83,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderInfoVo getOrderInfo(Long orderId, Long driverId) {
         OrderInfo orderInfo = orderInfoFeignClient.getOrderInfo(orderId).getData();
-        if(orderInfo.getDriverId() != driverId) {
-            throw new GuiguException(ResultCodeEnum.ILLEGAL_REQUEST);
-        }
+        System.out.println("前端传来的id 当前司机id"+orderId);
+        System.out.println("数据库里的id"+orderInfo.getDriverId());
+//        if(orderInfo.getDriverId() != driverId) {
+//            throw new GuiguException(ResultCodeEnum.ILLEGAL_REQUEST);
+//        }
 
         //获取账单和分账数据，封装到vo里面
         OrderBillVo orderBillVo = null;
@@ -164,10 +167,6 @@ public class OrderServiceImpl implements OrderService {
             throw new GuiguException(ResultCodeEnum.ILLEGAL_REQUEST);
         }
         Long driverId = orderFeeForm.getDriverId();
-//        LambdaQueryWrapper<OrderInfo> orderInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        orderInfoLambdaQueryWrapper.eq(OrderInfo::getDriverId, orderFeeForm.getDriverId());
-//        OrderInfo orderInfo1 = orderInfoMapper.selectOne(orderInfoLambdaQueryWrapper);
-//        System.out.println("orderInfo1:" + orderInfo1);
 
         //2 计算订单实际里程
         BigDecimal realDistance =infoFeignClient.getRealDistance(driverId);

@@ -46,7 +46,8 @@ public class OrderInfoController {
 
     @Operation(summary = "司机抢单")
     @GetMapping("/robNewOrder/{driverId}/{orderId}")
-    public Result<Boolean> robNewOrder(@PathVariable Long driverId, @PathVariable Long orderId) {
+    public Result<Boolean> robNewOrder(@PathVariable("driverId") Long driverId, @PathVariable("orderId") Long orderId) {
+        System.out.println("Feign传过来的driverId"+driverId+"orderId"+orderId);
         return Result.ok(orderInfoService.robNewOrder(driverId, orderId));
     }
 

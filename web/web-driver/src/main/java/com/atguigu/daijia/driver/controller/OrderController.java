@@ -61,7 +61,9 @@ public class OrderController {
     @GuiguLogin
     @GetMapping("/robNewOrder/{orderId}")
     public Result<Boolean> robNewOrder(@PathVariable Long orderId) {
+        System.out.println("传过来的orderId=" + orderId);
         Long driverId = AuthContextHolder.getUserId();
+        System.out.println("当前driverId:" + driverId);
         return Result.ok(orderService.robNewOrder(driverId, orderId));
     }
 

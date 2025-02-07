@@ -24,6 +24,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mysql.cj.x.protobuf.MysqlxCrud;
+import io.lettuce.core.ScriptOutputType;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.annotation.Resource;
 import lombok.Data;
 import org.redisson.api.RLock;
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -94,6 +98,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     //司机抢单
     @Override
     public Boolean robNewOrder(Long driverId, Long orderId) {
+        System.out.println("抢到的单子orderId"+orderId);
         //判断订单是否存在，通过Redis，减少数据库压力
         if(!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
             //抢单失败
@@ -118,6 +123,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 wrapper.eq(OrderInfo::getId,orderId);
                 OrderInfo orderInfo = orderInfoMapper.selectOne(wrapper);
                 //设置
+                System.out.println("设置的driverId"+driverId);
                 orderInfo.setStatus(OrderStatus.ACCEPTED.getStatus());
                 orderInfo.setDriverId(driverId);
                 orderInfo.setAcceptTime(new Date());
@@ -231,13 +237,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Override
     public Boolean updateOrderCart(UpdateOrderCartForm updateOrderCartForm) {
+        System.out.println("前端传过来的UpdateOrderCartForm"+updateOrderCartForm.getCarFrontUrl());
         LambdaQueryWrapper<OrderInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(OrderInfo::getId,updateOrderCartForm.getOrderId());
         wrapper.eq(OrderInfo::getDriverId,updateOrderCartForm.getDriverId());
-
         OrderInfo orderInfo = new OrderInfo();
         BeanUtils.copyProperties(updateOrderCartForm,orderInfo);
         orderInfo.setStatus(OrderStatus.UPDATE_CART_INFO.getStatus());
+        System.out.println("封装后的url"+orderInfo.getCarFrontUrl());
 
         int rows = orderInfoMapper.update(orderInfo, wrapper);
         if(rows == 1) {
@@ -384,6 +391,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     public BigDecimal getRealDistance(Long driverId) {
         LambdaQueryWrapper<OrderInfo> orderInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
         orderInfoLambdaQueryWrapper.eq(OrderInfo::getDriverId, driverId);
+        orderInfoLambdaQueryWrapper.eq(OrderInfo::getStatus, 5);
         OrderInfo orderInfo1 = orderInfoMapper.selectOne(orderInfoLambdaQueryWrapper);
         System.out.println("orderInfo1:" + orderInfo1);
         return orderInfo1.getExpectDistance();

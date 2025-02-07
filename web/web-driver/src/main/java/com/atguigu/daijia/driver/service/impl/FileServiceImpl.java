@@ -7,19 +7,25 @@ import com.atguigu.daijia.driver.client.CosFeignClient;
 import com.atguigu.daijia.driver.config.MinioProperties;
 import com.atguigu.daijia.driver.service.FileService;
 import com.atguigu.daijia.model.vo.driver.CosUploadVo;
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
+import io.minio.errors.*;
+import io.minio.http.Method;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -29,38 +35,46 @@ public class FileServiceImpl implements FileService {
     private MinioProperties minioProperties;
 
     @Override
-    public String upload(MultipartFile file) {
-        try {
-            // 创建一个Minio的客户端对象
-            MinioClient minioClient = MinioClient.builder()
-                    .endpoint(minioProperties.getEndpointUrl())
-                    .credentials(minioProperties.getAccessKey(), minioProperties.getSecreKey())
-                    .build();
+    public String upload(MultipartFile file) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        // 创建Minio客户端
+        MinioClient minioClient = MinioClient.builder()
+                .endpoint(minioProperties.getEndpointUrl())
+                .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
+                .build();
 
-            // 判断桶是否存在
+            // 检查桶是否存在
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getBucketName()).build());
-            if (!found) {       // 如果不存在，那么此时就创建一个新的桶
+            if (!found) {
+                // 如果桶不存在，创建桶
+                log.info("Bucket does not exist. Creating new bucket.");
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getBucketName()).build());
-            } else {  // 如果存在打印信息
-                System.out.println("Bucket 'daijia' already exists.");
+            } else {
+                log.info("Bucket '{}' already exists.", minioProperties.getBucketName());
             }
-
-            // 设置存储对象名称
+            InputStream inputStream = file.getInputStream();
+            // 获取文件扩展名并生成唯一文件名
             String extFileName = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-            String fileName = new SimpleDateFormat("yyyyMMdd")
-                    .format(new Date()) + "/" + UUID.randomUUID().toString().replace("-" , "") + "." + extFileName;
+            String fileName = UUID.randomUUID().toString().replace("-", "") + extFileName;
+            minioClient.putObject(
+                    PutObjectArgs.builder().bucket(minioProperties.getBucketName())
+                            .object(fileName)
+                            .stream(inputStream, file.getSize(), -1)
+                            .build());
+            inputStream.close();
 
-            PutObjectArgs putObjectArgs = PutObjectArgs.builder()
-                    .bucket(minioProperties.getBucketName())
-                    .stream(file.getInputStream(), file.getSize(), -1)
-                    .object(fileName)
-                    .build();
-            minioClient.putObject(putObjectArgs) ;
 
-            return minioProperties.getEndpointUrl() + "/" + minioProperties.getBucketName() + "/" + fileName ;
+            String url =
+                    minioClient.getPresignedObjectUrl(
+                            GetPresignedObjectUrlArgs.builder()
+                                    .method(Method.GET)
+                                    .bucket(minioProperties.getBucketName())
+                                    .object(fileName)
+                                    .expiry(2, TimeUnit.HOURS)
+                                    .build());
+            System.out.println(url);
 
-        } catch (Exception e) {
-            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
-        }
+            return url;
+
     }
 }
+
