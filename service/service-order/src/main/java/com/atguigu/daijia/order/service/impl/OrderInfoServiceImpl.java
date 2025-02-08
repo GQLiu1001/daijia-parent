@@ -397,6 +397,56 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderInfo1.getExpectDistance();
     }
 
+    @Override
+    public Boolean updateOrderPayStatus(String orderNo) {
+        //1 根据订单编号查询，判断订单状态
+        LambdaQueryWrapper<OrderInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(OrderInfo::getOrderNo,orderNo);
+        OrderInfo orderInfo = orderInfoMapper.selectOne(wrapper);
+        if(orderInfo == null || orderInfo.getStatus() == OrderStatus.PAID.getStatus()) {
+            return true;
+        }
+
+        //2 更新状态
+        LambdaQueryWrapper<OrderInfo> updateWrapper = new LambdaQueryWrapper<>();
+        updateWrapper.eq(OrderInfo::getOrderNo,orderNo);
+
+        OrderInfo updateOrderInfo = new OrderInfo();
+        updateOrderInfo.setStatus(OrderStatus.PAID.getStatus());
+        updateOrderInfo.setPayTime(new Date());
+
+        int rows = orderInfoMapper.update(updateOrderInfo, updateWrapper);
+
+        if(rows == 1) {
+            return true;
+        } else {
+            throw new GuiguException(ResultCodeEnum.UPDATE_ERROR);
+        }
+    }
+
+    @Override
+    public OrderRewardVo getOrderRewardFee(String orderNo) {
+        //根据订单编号查询订单表
+        OrderInfo orderInfo =
+                orderInfoMapper.selectOne(
+                        new LambdaQueryWrapper<OrderInfo>()
+                                .eq(OrderInfo::getOrderNo, orderNo)
+                                .select(OrderInfo::getId,OrderInfo::getDriverId));
+
+        //根据订单id查询系统奖励表
+        OrderBill orderBill =
+                orderBillMapper.selectOne(new LambdaQueryWrapper<OrderBill>()
+                        .eq(OrderBill::getOrderId, orderInfo.getId())
+                        .select(OrderBill::getRewardFee));
+
+        //封装到vo里面
+        OrderRewardVo orderRewardVo = new OrderRewardVo();
+        orderRewardVo.setOrderId(orderInfo.getId());
+        orderRewardVo.setDriverId(orderInfo.getDriverId());
+        orderRewardVo.setRewardFee(orderBill.getRewardFee());
+        return orderRewardVo;
+    }
+
     public Boolean robNewOrder2(Long driverId, Long orderId) {
         //判断订单是否存在，通过redisTemplate 如果不存在这个key就返回抢单失败
         if (!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {

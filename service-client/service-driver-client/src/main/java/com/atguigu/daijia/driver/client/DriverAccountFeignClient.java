@@ -9,5 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(value = "service-driver")
 public interface DriverAccountFeignClient {
 
-
+    /**
+     * 转账
+     * @param transferForm
+     * @return
+     */
+    @PostMapping("/driver/account/transfer")
+    Result<Boolean> transfer(@RequestBody TransferForm transferForm);
 }
