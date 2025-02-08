@@ -14,6 +14,7 @@ import com.atguigu.daijia.order.client.OrderInfoFeignClient;
 import com.atguigu.daijia.payment.mapper.PaymentInfoMapper;
 import com.atguigu.daijia.payment.service.WxPayService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -139,6 +140,7 @@ public class WxPayServiceImpl implements WxPayService {
     @Resource
     private DriverAccountFeignClient driverAccountFeignClient;
     //支付成功后续处理
+    @GlobalTransactional //分布式事务 seata
     @Override
     public void handleOrder(String orderNo) {
         //1 远程调用：更新订单状态：已经支付
