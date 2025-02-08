@@ -29,6 +29,8 @@ import io.lettuce.core.ScriptOutputType;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.annotation.Resource;
 import lombok.Data;
+import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RDelayedQueue;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -57,25 +59,30 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private OrderProfitsharingMapper orderProfitsharingMapper;
     @Resource
     private OrderBillMapper orderBillMapper;
+    //乘客下单
     @Override
     public Long saveOrderInfo(OrderInfoForm orderInfoForm) {
-        //向OrderInfo表添加数据
+        //order_info添加订单数据
         OrderInfo orderInfo = new OrderInfo();
-        BeanUtils.copyProperties(orderInfoForm, orderInfo);
-        //订单号和订单状态需要自己设置
-        orderInfo.setOrderNo(UUID.randomUUID().toString().replace("-", ""));
-        //枚举类的等待接单
+        BeanUtils.copyProperties(orderInfoForm,orderInfo);
+        //订单号
+        String orderNo = UUID.randomUUID().toString().replaceAll("-","");
+        orderInfo.setOrderNo(orderNo);
+        //订单状态
         orderInfo.setStatus(OrderStatus.WAITING_ACCEPT.getStatus());
+        orderInfoMapper.insert(orderInfo);
+
+        //生成订单之后，发送延迟消息
+        this.sendDelayMessage(orderInfo.getId());
+
         //记录日志
         this.log(orderInfo.getId(),orderInfo.getStatus());
-        orderInfoMapper.insert(orderInfo);
 
         //向redis添加标识
         //接单标识，标识不存在了说明不在等待接单状态了
         redisTemplate.opsForValue().set(RedisConstant.ORDER_ACCEPT_MARK,
                 "0", RedisConstant.ORDER_ACCEPT_MARK_EXPIRES_TIME, TimeUnit.MINUTES);
 
-        //返回订单id
         return orderInfo.getId();
     }
 
@@ -447,6 +454,24 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderRewardVo;
     }
 
+    //调用方法取消订单
+    @Override
+    public void orderCancel(long orderId) {
+        //orderId查询订单信息
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        //判断
+        if(orderInfo.getStatus()==OrderStatus.WAITING_ACCEPT.getStatus()) {
+            //修改订单状态：取消状态
+            orderInfo.setStatus(OrderStatus.CANCEL_ORDER.getStatus());
+            int rows = orderInfoMapper.updateById(orderInfo);
+            if(rows == 1) {
+                //删除接单标识
+
+                redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
+            }
+        }
+    }
+
     public Boolean robNewOrder2(Long driverId, Long orderId) {
         //判断订单是否存在，通过redisTemplate 如果不存在这个key就返回抢单失败
         if (!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
@@ -510,5 +535,24 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderStatusLog.setOrderStatus(status);
         orderStatusLog.setOperateTime(new Date());
         orderStatusLogMapper.insert(orderStatusLog);
+    }
+
+    //生成订单之后，发送延迟消息
+    private void sendDelayMessage(Long orderId) {
+        try{
+            //1 创建队列
+            RBlockingQueue<Object> blockingDueue = redissonClient.getBlockingQueue("queue_cancel");
+
+            //2 把创建队列放到延迟队列里面
+            RDelayedQueue<Object> delayedQueue = redissonClient.getDelayedQueue(blockingDueue);
+
+            //3 发送消息到延迟队列里面
+            //设置过期时间
+            delayedQueue.offer(orderId.toString(),15,TimeUnit.MINUTES);
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new GuiguException(ResultCodeEnum.DATA_ERROR);
+        }
     }
 }
