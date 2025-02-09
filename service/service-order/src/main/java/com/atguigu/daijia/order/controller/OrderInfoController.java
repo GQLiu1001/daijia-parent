@@ -171,5 +171,11 @@ public class OrderInfoController {
     public Result<OrderRewardVo> getOrderRewardFee(@PathVariable String orderNo) {
         return Result.ok(orderInfoService.getOrderRewardFee(orderNo));
     }
+
+    @GetMapping("/update/{orderNo}")
+    public void updateOrderFinally(@PathVariable("orderNo") String orderNo) {
+        orderInfoService.updateOrderFinally(orderNo);
+    }
+
 }
 

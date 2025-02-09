@@ -29,7 +29,8 @@ import java.util.Date;
 public class WxPayServiceImpl implements WxPayService {
     @Resource
     private PaymentInfoMapper paymentInfoMapper;
-
+    @Resource
+    private OrderInfoFeignClient infoFeignClient;
     @Override
     public WxPrepayVo createWxPayment(PaymentInfoForm paymentInfoForm) {
         //1 添加支付记录到支付表里面
@@ -43,6 +44,9 @@ public class WxPayServiceImpl implements WxPayService {
             paymentInfo.setPaymentStatus(0);
             paymentInfoMapper.insert(paymentInfo);
         }
+        String orderNo = paymentInfo.getOrderNo();
+        System.out.println("得到的orderNo=" + orderNo);
+        infoFeignClient.updateOrderFinally(orderNo);
 
 //            //2 创建微信支付使用对象
 //            JsapiServiceExtension service =

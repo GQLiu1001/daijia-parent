@@ -472,6 +472,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
     }
 
+    @Override
+    public void updateOrderFinally(String orderNo) {
+        System.out.println("触发了updateOrderFinally");
+        orderInfoMapper.updateOrderFinally(orderNo);
+    }
+
     public Boolean robNewOrder2(Long driverId, Long orderId) {
         //判断订单是否存在，通过redisTemplate 如果不存在这个key就返回抢单失败
         if (!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
