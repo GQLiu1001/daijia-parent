@@ -55,4 +55,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     void orderCancel(long l);
 
     void updateOrderFinally(String orderNo);
+
+    Boolean updateCouponAmount(Long orderId, BigDecimal couponAmount);
 }

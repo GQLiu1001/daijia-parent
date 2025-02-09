@@ -177,5 +177,11 @@ public class OrderInfoController {
         orderInfoService.updateOrderFinally(orderNo);
     }
 
+    @Operation(summary = "更新订单优惠券金额")
+    @GetMapping("/updateCouponAmount/{orderId}/{couponAmount}")
+    public Result<Boolean> updateCouponAmount(@PathVariable Long orderId, @PathVariable BigDecimal couponAmount) {
+        return Result.ok(orderInfoService.updateCouponAmount(orderId, couponAmount));
+    }
+
 }
 

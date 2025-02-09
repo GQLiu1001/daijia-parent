@@ -88,4 +88,7 @@ public interface OrderInfoFeignClient {
 
     @GetMapping("/order/info/update/{orderNo}")
     void updateOrderFinally(@PathVariable("orderNo") String orderNo);
+
+    @GetMapping("/order/info/updateCouponAmount/{orderId}/{couponAmount}")
+    Result<Boolean> updateCouponAmount(@PathVariable Long orderId, @PathVariable BigDecimal couponAmount);
 }
