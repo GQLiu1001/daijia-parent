@@ -91,4 +91,7 @@ public interface OrderInfoFeignClient {
 
     @GetMapping("/order/info/updateCouponAmount/{orderId}/{couponAmount}")
     Result<Boolean> updateCouponAmount(@PathVariable Long orderId, @PathVariable BigDecimal couponAmount);
+
+    @GetMapping("/order/info/cusDrop/{orderId}")
+    Result<Boolean> cusDrop(@PathVariable("orderId") Long orderId);
 }

@@ -194,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
                 orderServiceLastLocationVo.getLatitude().doubleValue(),
                 orderServiceLastLocationVo.getLongitude().doubleValue());
         if(distance > SystemConstant.DRIVER_END_LOCATION_DISTION) {
-            throw new GuiguException(ResultCodeEnum.DRIVER_END_LOCATION_DISTION_ERROR);
+//            throw new GuiguException(ResultCodeEnum.DRIVER_END_LOCATION_DISTION_ERROR);
         }
 
         //2 计算订单实际里程

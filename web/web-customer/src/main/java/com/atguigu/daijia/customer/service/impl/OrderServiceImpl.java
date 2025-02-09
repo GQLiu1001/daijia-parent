@@ -3,6 +3,7 @@ package com.atguigu.daijia.customer.service.impl;
 import com.atguigu.daijia.common.execption.GuiguException;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.common.result.ResultCodeEnum;
+import com.atguigu.daijia.coupon.client.CouponFeignClient;
 import com.atguigu.daijia.customer.client.CustomerInfoFeignClient;
 import com.atguigu.daijia.customer.service.OrderService;
 import com.atguigu.daijia.dispatch.client.NewOrderFeignClient;
@@ -12,6 +13,7 @@ import com.atguigu.daijia.map.client.MapFeignClient;
 import com.atguigu.daijia.map.client.WxPayFeignClient;
 import com.atguigu.daijia.model.entity.order.OrderInfo;
 import com.atguigu.daijia.model.enums.OrderStatus;
+import com.atguigu.daijia.model.form.coupon.UseCouponForm;
 import com.atguigu.daijia.model.form.customer.ExpectOrderForm;
 import com.atguigu.daijia.model.form.customer.SubmitOrderForm;
 import com.atguigu.daijia.model.form.map.CalculateDrivingLineForm;
@@ -42,6 +44,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Slf4j
@@ -63,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ExpectOrderVo expectOrder(ExpectOrderForm expectOrderForm) {
         //获取驾驶路线
+        System.out.println("获取驾驶线路！！");
         CalculateDrivingLineForm form = new CalculateDrivingLineForm();
         BeanUtils.copyProperties(expectOrderForm, form);
         Result<DrivingLineVo> drivingLineVoResult = mapFeignClient.calculateDrivingLine(form);
@@ -198,13 +202,14 @@ public class OrderServiceImpl implements OrderService {
     private CustomerInfoFeignClient customerInfoFeignClient;
     @Resource
     private WxPayFeignClient wxPayFeignClient;
+    @Resource
+    private CouponFeignClient couponFeignClient;
 
     @Override
     public WxPrepayVo createWxPayment(CreateWxPaymentForm createWxPaymentForm) {
         //获取订单支付信息
         OrderPayVo orderPayVo = orderInfoFeignClient.getOrderPayVo(createWxPaymentForm.getOrderNo(),
                 createWxPaymentForm.getCustomerId()).getData();
-        System.out.println("orderPayVo = " + orderPayVo);
         //判断
         if(orderPayVo.getStatus() != OrderStatus.UNPAID.getStatus()) {
             throw new GuiguException(ResultCodeEnum.ILLEGAL_REQUEST);
@@ -215,12 +220,38 @@ public class OrderServiceImpl implements OrderService {
 
         String driverOpenId = driverInfoFeignClient.getDriverOpenId(orderPayVo.getDriverId()).getData();
 
+        //处理优惠卷
+        BigDecimal couponAmount = null;
+        //判断
+        if (null == orderPayVo.getCouponAmount()
+                && null != createWxPaymentForm.getCustomerCouponId()
+                && createWxPaymentForm.getCustomerCouponId() != 0) {
+            UseCouponForm useCouponForm = new UseCouponForm();
+            useCouponForm.setOrderId(orderPayVo.getOrderId());
+            useCouponForm.setCustomerCouponId(createWxPaymentForm.getCustomerCouponId());
+            useCouponForm.setOrderAmount(orderPayVo.getPayAmount());
+            useCouponForm.setCustomerId(createWxPaymentForm.getCustomerId());
+            couponAmount = couponFeignClient.useCoupon(useCouponForm).getData();
+        }
+
+        //更新订单支付金额
+        //获取支付金额
+        BigDecimal payAmount = orderPayVo.getPayAmount();
+        if(couponAmount != null) {
+            orderInfoFeignClient.updateCouponAmount(orderPayVo.getOrderId(),couponAmount).getData();
+
+            //当前支付金额
+            payAmount = payAmount.subtract(couponAmount);
+        }
+
         //封装需要数据到实体类，远程调用发起微信支付
         PaymentInfoForm paymentInfoForm = new PaymentInfoForm();
         paymentInfoForm.setCustomerOpenId(customerOpenId);
         paymentInfoForm.setDriverOpenId(driverOpenId);
         paymentInfoForm.setOrderNo(orderPayVo.getOrderNo());
-        paymentInfoForm.setAmount(orderPayVo.getPayAmount());
+
+        paymentInfoForm.setAmount(payAmount);
+
         paymentInfoForm.setContent(orderPayVo.getContent());
         paymentInfoForm.setPayWay(1);
 
@@ -231,5 +262,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Boolean queryPayStatus(String orderNo) {
         return wxPayFeignClient.queryPayStatus(orderNo).getData();
+    }
+
+    @Override
+    public Boolean cusDrop(Long orderId) {
+        Result<Boolean> booleanResult = orderInfoFeignClient.cusDrop(orderId);
+        return booleanResult.getData();
     }
 }

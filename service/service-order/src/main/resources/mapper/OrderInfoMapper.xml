@@ -7,6 +7,11 @@
         SET status = 8
         WHERE order_no = #{orderNo}
     </update>
+    <update id="updateCusDrop">
+        UPDATE order_info
+        SET status = 9 , is_deleted = 1
+        WHERE id = #{orderId}
+    </update>
 
     <!-- 查询乘客订单分页 -->
     <select id="selectCustomerOrderPage" resultType="com.atguigu.daijia.model.vo.order.OrderListVo">

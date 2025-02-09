@@ -24,9 +24,9 @@ public interface CouponInfoMapper extends BaseMapper<CouponInfo> {
 
     int updateReceiveCount(Long couponId);
 
-    int updateReceiveCountByLimit(@Param("id") Long id);
 
     List<NoUseCouponVo> findNoUseList(Long customerId);
 
     int updateUseCount(Long id);
+
 }

@@ -39,4 +39,6 @@ public interface OrderService {
     WxPrepayVo createWxPayment(CreateWxPaymentForm createWxPaymentForm);
 
     Boolean queryPayStatus(String orderNo);
+
+    Boolean cusDrop(Long orderId);
 }

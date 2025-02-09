@@ -20,4 +20,6 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
     OrderPayVo selectOrderPayVo(String orderNo, Long customerId);
 
     void updateOrderFinally(String orderNo);
+
+    Boolean updateCusDrop(Long orderId);
 }

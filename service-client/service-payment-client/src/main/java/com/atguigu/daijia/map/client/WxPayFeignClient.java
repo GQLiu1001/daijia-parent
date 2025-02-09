@@ -12,10 +12,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(value = "service-payment")
 public interface WxPayFeignClient {
-
+    /**
+     * 创建微信支付
+     * @param paymentInfoForm
+     * @return
+     */
     @PostMapping("/payment/wxPay/createWxPayment")
     Result<WxPrepayVo> createWxPayment(@RequestBody PaymentInfoForm paymentInfoForm);
 
+    /**
+     * 支付状态查询
+     * @param orderNo
+     * @return
+     */
     @GetMapping("/payment/wxPay/queryPayStatus/{orderNo}")
     Result<Boolean> queryPayStatus(@PathVariable("orderNo") String orderNo);
 }

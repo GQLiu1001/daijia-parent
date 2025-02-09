@@ -41,6 +41,7 @@ public class OrderController {
     @GuiguLogin
     @PostMapping("/expectOrder")
     public Result<ExpectOrderVo> expectOrder(@RequestBody ExpectOrderForm expectOrderForm) {
+
         return Result.ok(orderService.expectOrder(expectOrderForm));
     }
 
@@ -64,7 +65,11 @@ public class OrderController {
     @GuiguLogin
     @GetMapping("/getOrderStatus/{orderId}")
     public Result<Integer> getOrderStatus(@PathVariable Long orderId) {
-        return Result.ok(orderService.getOrderStatus(orderId));
+        Integer orderStatus = orderService.getOrderStatus(orderId);
+        if (orderStatus == 9) {
+            return Result.fail(orderStatus);
+        }
+        return Result.ok(orderStatus);
     }
 
     @Operation(summary = "获取订单信息")
@@ -123,6 +128,7 @@ public class OrderController {
     public Result<WxPrepayVo> createWxPayment(@RequestBody CreateWxPaymentForm createWxPaymentForm) {
         Long customerId = AuthContextHolder.getUserId();
         createWxPaymentForm.setCustomerId(customerId);
+        System.out.println("createWxPaymentForm.customerId"+customerId);
         return Result.ok(orderService.createWxPayment(createWxPaymentForm));
     }
 
@@ -131,6 +137,13 @@ public class OrderController {
     @GetMapping("/queryPayStatus/{orderNo}")
     public Result<Boolean> queryPayStatus(@PathVariable String orderNo) {
         return Result.ok(orderService.queryPayStatus(orderNo));
+    }
+
+    @Operation(summary = "顾客撤单")
+    @GuiguLogin
+    @GetMapping("/customerCancelNoAcceptOrder/{orderId}")
+    public Result<Boolean> customerCancelNoAcceptOrder(@PathVariable Long orderId) {
+        return Result.ok(orderService.cusDrop(orderId));
     }
 }
 

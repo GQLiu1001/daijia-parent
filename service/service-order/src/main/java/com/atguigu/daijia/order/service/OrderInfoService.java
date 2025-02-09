@@ -52,9 +52,11 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     OrderRewardVo getOrderRewardFee(String orderNo);
 
-    void orderCancel(long l);
+//    void orderCancel(long l);
 
     void updateOrderFinally(String orderNo);
 
     Boolean updateCouponAmount(Long orderId, BigDecimal couponAmount);
+
+    Boolean cusDrop(Long orderId);
 }

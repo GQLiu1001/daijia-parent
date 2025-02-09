@@ -455,24 +455,24 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderRewardVo;
     }
 
-    //调用方法取消订单
-    @Override
-    public void orderCancel(long orderId) {
-        System.out.println("触发了调用方法取消订单");
-        //orderId查询订单信息
-        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
-        System.out.println("调用方法取消订单查询订单信息的状态"+orderInfo.getStatus());
-        //判断
-        if(orderInfo.getStatus()==OrderStatus.WAITING_ACCEPT.getStatus()) {
-            //修改订单状态：取消状态
-            orderInfo.setStatus(OrderStatus.CANCEL_ORDER.getStatus());
-            int rows = orderInfoMapper.updateById(orderInfo);
-            if(rows == 1) {
-                //删除接单标识
-                redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
-            }
-        }
-    }
+//    调用方法取消订单
+//    @Override
+//    public void orderCancel(long orderId) {
+//        System.out.println("触发了调用方法取消订单");
+//        //orderId查询订单信息
+//        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+//        System.out.println("调用方法取消订单查询订单信息的状态"+orderInfo.getStatus());
+//        //判断
+//        if(orderInfo.getStatus()==OrderStatus.WAITING_ACCEPT.getStatus()) {
+//            //修改订单状态：取消状态
+//            orderInfo.setStatus(OrderStatus.CUSDROP.getStatus());
+//            int rows = orderInfoMapper.updateById(orderInfo);
+//            if(rows == 1) {
+//                //删除接单标识
+//                redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
+//            }
+//        }
+//    }
 
     @Override
     public void updateOrderFinally(String orderNo) {
@@ -488,6 +488,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new GuiguException(ResultCodeEnum.UPDATE_ERROR);
         }
         return true;
+    }
+
+    @Override
+    public Boolean cusDrop(Long orderId) {
+        Boolean b = orderInfoMapper.updateCusDrop(orderId);
+        return b;
     }
 
     public Boolean robNewOrder2(Long driverId, Long orderId) {
@@ -558,15 +564,15 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     //生成订单之后，发送延迟消息
     private void sendDelayMessage(Long orderId) {
         try{
-            //1 创建队列
-            RBlockingQueue<Object> blockingDueue = redissonClient.getBlockingQueue("queue_cancel");
+            System.out.println("准备发送延迟消息，订单ID: " + orderId);
+            //原本是Object
+            RBlockingQueue<String> blockingQueue = redissonClient.getBlockingQueue("queue_cancel"); //  修改为 RBlockingQueue<String>
+            RDelayedQueue<String> delayedQueue = redissonClient.getDelayedQueue(blockingQueue); // 修改为 RDelayedQueue<String>
 
-            //2 把创建队列放到延迟队列里面
-            RDelayedQueue<Object> delayedQueue = redissonClient.getDelayedQueue(blockingDueue);
-
-            //3 发送消息到延迟队列里面
-            //设置过期时间
-            delayedQueue.offer(orderId.toString(),15,TimeUnit.MINUTES);
+            String orderIdStr = String.valueOf(orderId); //  将 Long 类型的 orderId 转换为 String 类型
+            System.out.println("准备放入延迟队列的消息内容为: " + orderIdStr);
+            delayedQueue.offer(orderIdStr,15,TimeUnit.MINUTES); // 放入 String 类型的 orderIdStr
+            System.out.println("已成功发送延迟消息到队列 queue_cancel，订单ID: " + orderIdStr);
 
         }catch (Exception e) {
             e.printStackTrace();

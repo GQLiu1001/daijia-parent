@@ -179,9 +179,14 @@ public class OrderInfoController {
 
     @Operation(summary = "更新订单优惠券金额")
     @GetMapping("/updateCouponAmount/{orderId}/{couponAmount}")
-    public Result<Boolean> updateCouponAmount(@PathVariable Long orderId, @PathVariable BigDecimal couponAmount) {
+    public Result<Boolean> updateCouponAmount(@PathVariable("orderId") Long orderId, @PathVariable("couponAmount") BigDecimal couponAmount) {
         return Result.ok(orderInfoService.updateCouponAmount(orderId, couponAmount));
     }
 
+    @Operation(summary = "乘客撤单")
+    @GetMapping("/cusDrop/{orderId}")
+    public Result<Boolean> cusDrop(@PathVariable("orderId") Long orderId) {
+        return Result.ok(orderInfoService.cusDrop(orderId));
+    }
 }
 

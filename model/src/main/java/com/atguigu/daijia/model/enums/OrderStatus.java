@@ -13,8 +13,8 @@ public enum OrderStatus {
     END_SERVICE(6, "结束服务"),
     UNPAID(7, "待付款"),
     PAID(8, "已付款"),
-    FINISH(9, "完成"),
-    CANCEL_ORDER(-1, "未接单取消订单"),
+//    CUSDROP(9, "乘客撤单"),
+//    CANCEL_ORDER(-1, "未接单取消订单"),
     NULL_ORDER(-100, "不存在"),
     ;
 
