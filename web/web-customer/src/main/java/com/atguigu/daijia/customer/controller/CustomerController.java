@@ -13,9 +13,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+
 
 @Slf4j
 @Tag(name = "客户API接口管理")
@@ -23,8 +22,6 @@ import org.springframework.web.client.RestTemplate;
 @RequestMapping("/customer")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class CustomerController {
-    @Resource
-    private RedisTemplate redisTemplate;
     @Resource
     private CustomerService customerService;
     @Resource

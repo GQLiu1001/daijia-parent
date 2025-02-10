@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Tag(name = "地图API接口管理")
@@ -24,9 +21,9 @@ public class MapController {
     private MapService mapService;
 
     @Operation(summary = "计算驾驶路线")
-    @PostMapping("/calculateDrivingLine")
-    public Result<DrivingLineVo> calculateDrivingLine(@RequestBody CalculateDrivingLineForm form) {
-        DrivingLineVo vo = mapService.calculateDrivingLine(form);
+    @PostMapping("/calculateDrivingLine/{userId}")
+    public Result<DrivingLineVo> calculateDrivingLine(@RequestBody CalculateDrivingLineForm form ,@PathVariable("userId") Long userId) {
+        DrivingLineVo vo = mapService.calculateDrivingLine(form,userId);
         return Result.ok(vo);
     }
 

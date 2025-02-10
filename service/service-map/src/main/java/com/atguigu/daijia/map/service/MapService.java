@@ -5,5 +5,5 @@ import com.atguigu.daijia.model.vo.map.DrivingLineVo;
 
 public interface MapService {
 
-    DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm form);
+    DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm form,Long userId);
 }

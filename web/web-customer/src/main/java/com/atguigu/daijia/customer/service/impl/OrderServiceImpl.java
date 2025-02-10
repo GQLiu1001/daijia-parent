@@ -42,6 +42,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -63,14 +64,19 @@ public class OrderServiceImpl implements OrderService {
     private DriverInfoFeignClient driverInfoFeignClient;
     @Resource
     private LocationFeignClient locationFeignClient;
+    @Resource
+    private RedisTemplate redisTemplate;
     @Override
-    public ExpectOrderVo expectOrder(ExpectOrderForm expectOrderForm) {
+    public ExpectOrderVo expectOrder(ExpectOrderForm expectOrderForm,Long userId) {
         //获取驾驶路线
         System.out.println("获取驾驶线路！！");
         CalculateDrivingLineForm form = new CalculateDrivingLineForm();
         BeanUtils.copyProperties(expectOrderForm, form);
-        Result<DrivingLineVo> drivingLineVoResult = mapFeignClient.calculateDrivingLine(form);
+        Result<DrivingLineVo> drivingLineVoResult = mapFeignClient.calculateDrivingLine(form,userId);
         DrivingLineVo vo = drivingLineVoResult.getData();
+        if (vo == null) {
+            vo = (DrivingLineVo)redisTemplate.opsForValue().get("begin_forCus_drivingLineVo"+userId);
+        }
         //获取订单费用 FeeRuleRequestForm需要DrivingLineVo.getDistance()
         FeeRuleRequestForm feeRuleRequestForm = new FeeRuleRequestForm();
         feeRuleRequestForm.setDistance(vo.getDistance());
@@ -91,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
         //1.重新计算驾驶路线 点下单之前是预估
         CalculateDrivingLineForm form = new CalculateDrivingLineForm();
         BeanUtils.copyProperties(submitOrderForm, form);
-        Result<DrivingLineVo> drivingLineVoResult = mapFeignClient.calculateDrivingLine(form);
+        Result<DrivingLineVo> drivingLineVoResult = mapFeignClient.calculateDrivingLine(form,submitOrderForm.getCustomerId());
         DrivingLineVo vo = drivingLineVoResult.getData();
         //2.重新获取订单费用 FeeRuleRequestForm需要DrivingLineVo.getDistance()
         FeeRuleRequestForm feeRuleRequestForm = new FeeRuleRequestForm();
@@ -185,8 +191,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm) {
-        return mapFeignClient.calculateDrivingLine(calculateDrivingLineForm).getData();
+    public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm ,Long userId) {
+        return mapFeignClient.calculateDrivingLine(calculateDrivingLineForm,userId).getData();
     }
 
     @Override

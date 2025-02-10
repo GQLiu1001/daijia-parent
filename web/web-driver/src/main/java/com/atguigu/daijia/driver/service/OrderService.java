@@ -25,7 +25,7 @@ public interface OrderService {
 
     OrderInfoVo getOrderInfo(Long orderId, Long driverId);
 
-    DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm);
+    DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm,Long userId);
 
     Boolean driverArriveStartLocation(Long orderId, Long driverId);
 

@@ -16,7 +16,7 @@ import com.atguigu.daijia.model.vo.payment.WxPrepayVo;
 
 public interface OrderService {
 
-    ExpectOrderVo expectOrder(ExpectOrderForm expectOrderForm);
+    ExpectOrderVo expectOrder(ExpectOrderForm expectOrderForm,Long userId);
 
     Long submitOrder(SubmitOrderForm submitOrderForm);
 
@@ -30,7 +30,7 @@ public interface OrderService {
 
     OrderLocationVo getCacheOrderLocation(Long orderId);
 
-    DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm);
+    DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm,Long userId);
 
     OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId);
 

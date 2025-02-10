@@ -21,11 +21,17 @@ public class PaymentReceiver {
     private WxPayService wxPayService;
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = MqConst.QUEUE_PAY_SUCCESS,durable = "true"),
+            value = @Queue(value = MqConst.QUEUE_PAY_SUCCESS, durable = "true"),
             exchange = @Exchange(value = MqConst.EXCHANGE_ORDER),
             key = {MqConst.ROUTING_PAY_SUCCESS}
     ))
     public void paySuccess(String orderNo) {
+        System.out.println("触发了 PaymentReceiver");
+        System.out.println("当前线程：" + Thread.currentThread().getName());
+        System.out.println("接收的消息：" + orderNo);
+        System.out.println("接收的队列：" + MqConst.QUEUE_PAY_SUCCESS);
+
         wxPayService.handleOrder(orderNo);
     }
+
 }

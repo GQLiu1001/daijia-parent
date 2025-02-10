@@ -19,6 +19,7 @@ import com.atguigu.daijia.model.form.coupon.UseCouponForm;
 import com.atguigu.daijia.model.form.driver.TransferForm;
 import com.atguigu.daijia.model.form.payment.CreateWxPaymentForm;
 import com.atguigu.daijia.model.form.payment.PaymentInfoForm;
+import com.atguigu.daijia.model.vo.map.DrivingLineVo;
 import com.atguigu.daijia.model.vo.order.OrderPayVo;
 import com.atguigu.daijia.model.vo.order.OrderRewardVo;
 import com.atguigu.daijia.model.vo.payment.WxPrepayVo;
@@ -37,6 +38,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.util.RequestUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import com.wechat.pay.java.service.payments.model.Transaction;
 
@@ -64,6 +66,8 @@ public class WxPayServiceImpl implements WxPayService {
     private DriverAccountFeignClient driverAccountFeignClient;
     @Resource
     private RabbitService rabbitService;
+    @Resource
+    private RedisTemplate drivingLineRedisTemplate;
 
     @Override
     public WxPrepayVo createWxPayment(PaymentInfoForm paymentInfoForm) {
@@ -123,8 +127,12 @@ public class WxPayServiceImpl implements WxPayService {
         paymentInfo.setTransactionId(transaction.getTransactionId());
         paymentInfo.setCallbackTime(new Date());
         paymentInfo.setCallbackContent(JSON.toJSONString(transaction));
+        // 发送 MQ 消息
+        System.out.println("发送 MQ 消息：");
+        System.out.println("Exchange: " + MqConst.EXCHANGE_ORDER);
+        System.out.println("Routing Key: " + MqConst.ROUTING_PAY_SUCCESS);
+        System.out.println("Message: " + orderNo);
         paymentInfoMapper.updateById(paymentInfo);
-
         //2 发送端：发送mq消息，传递 订单编号
         //  接收端：获取订单编号，完成后续处理
         rabbitService.sendMessage(MqConst.EXCHANGE_ORDER,
@@ -138,30 +146,34 @@ public class WxPayServiceImpl implements WxPayService {
     @Override
     public void handleOrder(String orderNo) {
         System.out.println("-------------------------------------------------------------------");
-        System.out.println("触发了支付成功后续处理" + orderNo);
+        System.out.println("触发了支付成功后续处理，订单号：" + orderNo);
         System.out.println("-------------------------------------------------------------------");
-//        1 远程调用：更新订单状态：已经支付
-//        orderInfoFeignClient.updateOrderPayStatus(orderNo);
 
-        //2 远程调用：获取系统奖励，打入到司机账户
+        System.out.println("获取系统奖励...");
         OrderRewardVo orderRewardVo = orderInfoFeignClient.getOrderRewardFee(orderNo).getData();
-        System.out.println("获取系统奖励" + orderRewardVo);
+        System.out.println("系统奖励内容：" + orderRewardVo);
+
         if (orderRewardVo != null && orderRewardVo.getRewardFee().doubleValue() > 0) {
+            System.out.println("奖励金额：" + orderRewardVo.getRewardFee());
             TransferForm transferForm = new TransferForm();
             transferForm.setTradeNo(orderNo);
             transferForm.setTradeType(TradeType.REWARD.getType());
             transferForm.setContent(TradeType.REWARD.getContent());
             transferForm.setAmount(orderRewardVo.getRewardFee());
             transferForm.setDriverId(orderRewardVo.getDriverId());
+            System.out.println("调用司机账户转账接口...");
             driverAccountFeignClient.transfer(transferForm);
         }
-        //根据orderId找到司机id
+
+        System.out.println("增加司机订单数...");
         Result<OrderInfo> orderInfoByOrderNo = orderInfoFeignClient.getOrderInfoByOrderNo(orderNo);
         OrderInfo orderInfo = orderInfoByOrderNo.getData();
+        Long userId = orderInfo.getCustomerId();
         Long driverId = orderInfo.getDriverId();
-        //3 TODO 其他
-        System.out.println("司机订单数加1");
         driverInfoFeignClient.increaseOrderCount(driverId);
-
+        System.out.println("司机订单数增加成功，司机 ID：" + driverId);
+        System.out.println("从redis删除drivingLineVO 离谱的bug");
+        drivingLineRedisTemplate.delete("begin_forCus_drivingLineVo"+userId);
     }
+
 }

@@ -4,7 +4,6 @@ import com.atguigu.daijia.common.login.GuiguLogin;
 import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.customer.service.OrderService;
-import com.atguigu.daijia.map.service.LocationService;
 import com.atguigu.daijia.model.form.customer.ExpectOrderForm;
 import com.atguigu.daijia.model.form.customer.SubmitOrderForm;
 import com.atguigu.daijia.model.form.map.CalculateDrivingLineForm;
@@ -23,7 +22,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -41,8 +39,8 @@ public class OrderController {
     @GuiguLogin
     @PostMapping("/expectOrder")
     public Result<ExpectOrderVo> expectOrder(@RequestBody ExpectOrderForm expectOrderForm) {
-
-        return Result.ok(orderService.expectOrder(expectOrderForm));
+        Long userId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.expectOrder(expectOrderForm,userId));
     }
 
     @Operation(summary = "乘客端查找当前订单")
@@ -98,7 +96,8 @@ public class OrderController {
     @GuiguLogin
     @PostMapping("/calculateDrivingLine")
     public Result<DrivingLineVo> calculateDrivingLine(@RequestBody CalculateDrivingLineForm calculateDrivingLineForm) {
-        return Result.ok(orderService.calculateDrivingLine(calculateDrivingLineForm));
+        Long userId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.calculateDrivingLine(calculateDrivingLineForm,userId));
     }
 
     @Operation(summary = "代驾服务：获取订单服务最后一个位置信息")

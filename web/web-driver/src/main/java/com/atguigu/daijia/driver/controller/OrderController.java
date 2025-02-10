@@ -79,7 +79,8 @@ public class OrderController {
     @GuiguLogin
     @PostMapping("/calculateDrivingLine")
     public Result<DrivingLineVo> calculateDrivingLine(@RequestBody CalculateDrivingLineForm calculateDrivingLineForm) {
-        return Result.ok(orderService.calculateDrivingLine(calculateDrivingLineForm));
+        Long userId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.calculateDrivingLine(calculateDrivingLineForm,userId));
     }
 
     @Operation(summary = "司机到达代驾起始地点")

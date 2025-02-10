@@ -112,8 +112,8 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm) {
-        return mapFeignClient.calculateDrivingLine(calculateDrivingLineForm).getData();
+    public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm,Long userId) {
+        return mapFeignClient.calculateDrivingLine(calculateDrivingLineForm,userId).getData();
     }
 
     //司机到达代驾起始地点

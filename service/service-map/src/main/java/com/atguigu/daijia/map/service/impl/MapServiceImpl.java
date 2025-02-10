@@ -8,7 +8,9 @@ import com.atguigu.daijia.model.form.map.CalculateDrivingLineForm;
 import com.atguigu.daijia.model.vo.map.DrivingLineVo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,14 +25,17 @@ import java.util.Map;
 public class MapServiceImpl implements MapService {
     @Resource
     private RestTemplate restTemplate;
-
+    @Resource
+    private RedisTemplate drivingLineRedisTemplate;
     //取配置文件的key
 //    @Value("tencent.cloud.map")  蠢
     @Value("${tencent.map.key}")
     private String key;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
     @Override
-    public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm form) {
+    public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm form,Long userId) {
         //请求腾讯的接口，按照接口要求传参数，返回需要结果
         //用HTTP请求，用Spring的RestTemplate
         //定义要调用腾讯的地址
@@ -85,6 +90,8 @@ public class MapServiceImpl implements MapService {
         drivingLineVo.setDuration(route.getBigDecimal("duration"));
         drivingLineVo.setPolyline(route.getJSONArray("polyline"));
         System.out.println("封装的drivingLineVo"+drivingLineVo);
+        drivingLineRedisTemplate.opsForValue()
+                .set("begin_forCus_drivingLineVo"+userId, drivingLineVo);
         return drivingLineVo;
     }
 }
