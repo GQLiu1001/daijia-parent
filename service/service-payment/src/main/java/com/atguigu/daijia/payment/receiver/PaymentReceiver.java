@@ -16,6 +16,7 @@ import java.nio.channels.Channel;
 @Component
 public class PaymentReceiver {
 
+
     @Resource
     private WxPayService wxPayService;
 
@@ -24,7 +25,7 @@ public class PaymentReceiver {
             exchange = @Exchange(value = MqConst.EXCHANGE_ORDER),
             key = {MqConst.ROUTING_PAY_SUCCESS}
     ))
-    public void paySuccess(String orderNo, Message message, Channel channel) {
+    public void paySuccess(String orderNo) {
         wxPayService.handleOrder(orderNo);
     }
 }

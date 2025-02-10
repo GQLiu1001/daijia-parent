@@ -24,6 +24,8 @@ import com.atguigu.daijia.order.client.OrderInfoFeignClient;
 import com.atguigu.daijia.payment.mapper.PaymentInfoMapper;
 import com.atguigu.daijia.payment.service.WxPayService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.wechat.pay.java.core.notification.NotificationParser;
+import com.wechat.pay.java.core.notification.RequestParam;
 import com.wechat.pay.java.service.partnerpayments.app.model.Amount;
 import com.wechat.pay.java.service.partnerpayments.app.model.PrepayRequest;
 import com.wechat.pay.java.service.partnerpayments.jsapi.JsapiServiceExtension;
@@ -31,6 +33,7 @@ import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.util.RequestUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import com.wechat.pay.java.service.payments.model.Transaction;
@@ -53,6 +56,12 @@ public class WxPayServiceImpl implements WxPayService {
     private CouponFeignClient couponFeignClient;
     @Resource
     private WxPayFeignClient wxPayFeignClient;
+    @Resource
+    private OrderInfoFeignClient orderInfoFeignClient;
+    @Resource
+    private DriverAccountFeignClient driverAccountFeignClient;
+    @Resource
+    private RabbitService rabbitService;
 
     @Override
     public WxPrepayVo createWxPayment(PaymentInfoForm paymentInfoForm) {
@@ -78,67 +87,63 @@ public class WxPayServiceImpl implements WxPayService {
         wxPrepayVo.setTimeStamp("timeStamp" + paymentInfoForm.getOrderNo()); //时间戳，自1970年以来的秒数
         wxPrepayVo.setPackageVal("packageVal" + paymentInfoForm.getOrderNo()); //预支付交易会话标识
         return wxPrepayVo;
-
-
     }
 
     //查询支付状态
     @Override
     public Boolean queryPayStatus(String orderNo) {
+        System.out.println("微信支付成功后，进行的回调");
+        Transaction transaction = new Transaction();
+        transaction.setOutTradeNo(orderNo);
+        transaction.setTransactionId("setTransactionId" + orderNo);
+        handlePayment(transaction);
         return true;
     }
 
-    //微信支付成功后，进行的回调
-    @Override
-    public void wxnotify(HttpServletRequest request) {
-//1.回调通知的验签与解密
-        //从request头信息获取参数
-        //HTTP 头 Wechatpay-Signature
-        // HTTP 头 Wechatpay-Nonce
-        //HTTP 头 Wechatpay-Timestamp
-        //HTTP 头 Wechatpay-Serial
-        //HTTP 头 Wechatpay-Signature-Type
-        //HTTP 请求体 body。切记使用原始报文，不要用 JSON 对象序列化后的字符串，避免验签的 body 和原文不一致。
-//        String wechatPaySerial = request.getHeader("Wechatpay-Serial");
-//        String nonce = request.getHeader("Wechatpay-Nonce");
-//        String timestamp = request.getHeader("Wechatpay-Timestamp");
-//        String signature = request.getHeader("Wechatpay-Signature");
-//        String requestBody = RequestUtils.readData(request);
+    //如果支付成功，调用其他方法实现支付后处理逻辑
+    public void handlePayment(Transaction transaction) {
+        System.out.println("----------------------------------------------------");
+        System.out.println("调用了如果支付成功，调用此方法实现支付后处理逻辑");
+        //1 更新支付记录，状态修改为 已经支付
+        //订单编号
+        String orderNo = transaction.getOutTradeNo();
+        System.out.println("得到的orderId=" + orderNo);
+        //根据订单编号查询支付记录
+        LambdaQueryWrapper<PaymentInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(PaymentInfo::getOrderNo, orderNo);
+        PaymentInfo paymentInfo = paymentInfoMapper.selectOne(wrapper);
+        //如果已经支付，不需要更新
+        if (paymentInfo.getPaymentStatus() == 1) {
+            return;
+        }
+        paymentInfo.setPaymentStatus(1);
+//        paymentInfo.setOrderNo(transaction.getOutTradeNo());
+        paymentInfo.setTransactionId(transaction.getTransactionId());
+        paymentInfo.setCallbackTime(new Date());
+        paymentInfo.setCallbackContent(JSON.toJSONString(transaction));
+        paymentInfoMapper.updateById(paymentInfo);
 
-//        //2.构造 RequestParam
-//        RequestParam requestParam = new RequestParam.Builder()
-//                .serialNumber(wechatPaySerial)
-//                .nonce(nonce)
-//                .signature(signature)
-//                .timestamp(timestamp)
-//                .body(requestBody)
-//                .build();
-//
-//        //3.初始化 NotificationParser
-//        NotificationParser parser = new NotificationParser(rsaAutoCertificateConfig);
-//        //4.以支付通知回调为例，验签、解密并转换成 Transaction
-//        Transaction transaction = parser.parse(requestParam, Transaction.class);
-//
-//        if(null != transaction && transaction.getTradeState() == Transaction.TradeStateEnum.SUCCESS) {
-//            //5.处理支付业务
-//            this.handlePayment(transaction);
-//        }
+        //2 发送端：发送mq消息，传递 订单编号
+        //  接收端：获取订单编号，完成后续处理
+        rabbitService.sendMessage(MqConst.EXCHANGE_ORDER,
+                MqConst.ROUTING_PAY_SUCCESS,
+                orderNo);
     }
 
-    @Resource
-    private OrderInfoFeignClient orderInfoFeignClient;
-    @Resource
-    private DriverAccountFeignClient driverAccountFeignClient;
 
     //支付成功后续处理
     @GlobalTransactional //分布式事务 seata
     @Override
     public void handleOrder(String orderNo) {
-        //1 远程调用：更新订单状态：已经支付
-        orderInfoFeignClient.updateOrderPayStatus(orderNo);
+        System.out.println("-------------------------------------------------------------------");
+        System.out.println("触发了支付成功后续处理" + orderNo);
+        System.out.println("-------------------------------------------------------------------");
+//        1 远程调用：更新订单状态：已经支付
+//        orderInfoFeignClient.updateOrderPayStatus(orderNo);
 
         //2 远程调用：获取系统奖励，打入到司机账户
         OrderRewardVo orderRewardVo = orderInfoFeignClient.getOrderRewardFee(orderNo).getData();
+        System.out.println("获取系统奖励" + orderRewardVo);
         if (orderRewardVo != null && orderRewardVo.getRewardFee().doubleValue() > 0) {
             TransferForm transferForm = new TransferForm();
             transferForm.setTradeNo(orderNo);
@@ -150,37 +155,7 @@ public class WxPayServiceImpl implements WxPayService {
         }
 
         //3 TODO 其他
+        System.out.println("司机订单数加1");
 
-    }
-
-    @Resource
-    private RabbitService rabbitService;
-
-    //如果支付成功，调用其他方法实现支付后处理逻辑
-    public void handlePayment(Transaction transaction) {
-
-        //1 更新支付记录，状态修改为 已经支付
-        //订单编号
-        String orderNo = transaction.getOutTradeNo();
-        //根据订单编号查询支付记录
-        LambdaQueryWrapper<PaymentInfo> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(PaymentInfo::getOrderNo, orderNo);
-        PaymentInfo paymentInfo = paymentInfoMapper.selectOne(wrapper);
-        //如果已经支付，不需要更新
-        if (paymentInfo.getPaymentStatus() == 1) {
-            return;
-        }
-        paymentInfo.setPaymentStatus(1);
-        paymentInfo.setOrderNo(transaction.getOutTradeNo());
-        paymentInfo.setTransactionId(transaction.getTransactionId());
-        paymentInfo.setCallbackTime(new Date());
-        paymentInfo.setCallbackContent(JSON.toJSONString(transaction));
-        paymentInfoMapper.updateById(paymentInfo);
-
-        //2 发送端：发送mq消息，传递 订单编号
-        //  接收端：获取订单编号，完成后续处理
-        rabbitService.sendMessage(MqConst.EXCHANGE_ORDER,
-                MqConst.ROUTING_PAY_SUCCESS,
-                orderNo);
     }
 }

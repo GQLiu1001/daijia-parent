@@ -37,14 +37,4 @@ public class WxPayController {
         return Result.ok(wxPayService.queryPayStatus(orderNo));
     }
 
-    @Operation(summary = "微信支付异步通知接口")
-    @PostMapping("/notify")
-    public Map<String, Object> notify(HttpServletRequest request) {
-        wxPayService.wxnotify(request);
-        //返回成功
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", "SUCCESS");
-        result.put("message", "成功");
-        return result;
-    }
 }

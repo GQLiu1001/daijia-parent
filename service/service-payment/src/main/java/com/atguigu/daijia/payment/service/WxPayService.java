@@ -7,14 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface WxPayService {
 
-
-
     WxPrepayVo createWxPayment(PaymentInfoForm paymentInfoForm);
 
-
     Object queryPayStatus(String orderNo);
-
-    void wxnotify(HttpServletRequest request);
 
     void handleOrder(String orderNo);
 }
