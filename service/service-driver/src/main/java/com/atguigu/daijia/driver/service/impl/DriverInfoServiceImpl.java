@@ -23,6 +23,7 @@ import com.atguigu.daijia.model.vo.driver.DriverInfoVo;
 import com.atguigu.daijia.model.vo.driver.DriverLoginVo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.profile.ClientProfile;
@@ -301,6 +302,23 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         wrapper.eq(DriverInfo::getId,driverId);
         DriverInfo driverInfo = driverInfoMapper.selectOne(wrapper);
         return driverInfo.getWxOpenId();
+    }
+
+    @Override
+    public void increaseOrderCount(Long driverId) {
+        System.out.println("调用了increaseOrderCount,driverId:"+driverId);
+        LambdaQueryWrapper<DriverInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DriverInfo::getId,driverId);
+        DriverInfo driverInfo = driverInfoMapper.selectOne(wrapper);
+        Integer orderCount = driverInfo.getOrderCount();
+        System.out.println("orderCount:"+orderCount);
+        driverInfo.setOrderCount(orderCount+1);
+        driverInfoMapper.updateById(driverInfo);
+//        LambdaUpdateWrapper<DriverInfo> updateWrapper = new LambdaUpdateWrapper<>();
+//        updateWrapper.eq(DriverInfo::getId, driverId)
+//                .setSql("order_count = order_count + 1"); // 原子自增
+//        driverInfoMapper.update(null, updateWrapper);
+
     }
 
     //人脸静态活体检测

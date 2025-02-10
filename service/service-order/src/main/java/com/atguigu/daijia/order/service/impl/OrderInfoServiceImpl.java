@@ -455,25 +455,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderRewardVo;
     }
 
-//    调用方法取消订单
-//    @Override
-//    public void orderCancel(long orderId) {
-//        System.out.println("触发了调用方法取消订单");
-//        //orderId查询订单信息
-//        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
-//        System.out.println("调用方法取消订单查询订单信息的状态"+orderInfo.getStatus());
-//        //判断
-//        if(orderInfo.getStatus()==OrderStatus.WAITING_ACCEPT.getStatus()) {
-//            //修改订单状态：取消状态
-//            orderInfo.setStatus(OrderStatus.CUSDROP.getStatus());
-//            int rows = orderInfoMapper.updateById(orderInfo);
-//            if(rows == 1) {
-//                //删除接单标识
-//                redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
-//            }
-//        }
-//    }
-
     @Override
     public void updateOrderFinally(String orderNo) {
         System.out.println("触发了updateOrderFinally");
@@ -494,6 +475,11 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     public Boolean cusDrop(Long orderId) {
         Boolean b = orderInfoMapper.updateCusDrop(orderId);
         return b;
+    }
+
+    @Override
+    public OrderInfo getOrderInfoByOrderNo(String orderNo) {
+        return orderInfoMapper.getOrderInfoByOrderNo(orderNo);
     }
 
     public Boolean robNewOrder2(Long driverId, Long orderId) {

@@ -188,5 +188,11 @@ public class OrderInfoController {
     public Result<Boolean> cusDrop(@PathVariable("orderId") Long orderId) {
         return Result.ok(orderInfoService.cusDrop(orderId));
     }
+
+    @GetMapping("/getOrderInfoByOrderNo/{orderNo}")
+    public Result<OrderInfo> getOrderInfoByOrderNo(@PathVariable String orderNo){
+        return Result.ok(orderInfoService.getOrderInfoByOrderNo(orderNo));
+    }
+
 }
 

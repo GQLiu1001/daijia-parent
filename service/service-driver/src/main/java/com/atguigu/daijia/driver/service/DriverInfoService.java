@@ -35,4 +35,6 @@ public interface DriverInfoService extends IService<DriverInfo> {
     DriverInfoVo getDriverInfoOrder(Long driverId);
 
     String getDriverOpenId(Long driverId);
+
+    void increaseOrderCount(Long driverId);
 }

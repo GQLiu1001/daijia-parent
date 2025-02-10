@@ -22,4 +22,6 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
     void updateOrderFinally(String orderNo);
 
     Boolean updateCusDrop(Long orderId);
+
+    OrderInfo getOrderInfoByOrderNo(String orderNo);
 }

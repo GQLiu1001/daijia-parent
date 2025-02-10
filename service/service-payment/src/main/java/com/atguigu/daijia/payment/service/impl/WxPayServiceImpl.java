@@ -3,6 +3,7 @@ package com.atguigu.daijia.payment.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.atguigu.daijia.common.constant.MqConst;
 import com.atguigu.daijia.common.execption.GuiguException;
+import com.atguigu.daijia.common.result.Result;
 import com.atguigu.daijia.common.result.ResultCodeEnum;
 import com.atguigu.daijia.common.service.RabbitService;
 import com.atguigu.daijia.coupon.client.CouponFeignClient;
@@ -10,6 +11,7 @@ import com.atguigu.daijia.customer.client.CustomerInfoFeignClient;
 import com.atguigu.daijia.driver.client.DriverAccountFeignClient;
 import com.atguigu.daijia.driver.client.DriverInfoFeignClient;
 import com.atguigu.daijia.map.client.WxPayFeignClient;
+import com.atguigu.daijia.model.entity.order.OrderInfo;
 import com.atguigu.daijia.model.entity.payment.PaymentInfo;
 import com.atguigu.daijia.model.enums.OrderStatus;
 import com.atguigu.daijia.model.enums.TradeType;
@@ -153,9 +155,13 @@ public class WxPayServiceImpl implements WxPayService {
             transferForm.setDriverId(orderRewardVo.getDriverId());
             driverAccountFeignClient.transfer(transferForm);
         }
-
+        //根据orderId找到司机id
+        Result<OrderInfo> orderInfoByOrderNo = orderInfoFeignClient.getOrderInfoByOrderNo(orderNo);
+        OrderInfo orderInfo = orderInfoByOrderNo.getData();
+        Long driverId = orderInfo.getDriverId();
         //3 TODO 其他
         System.out.println("司机订单数加1");
+        driverInfoFeignClient.increaseOrderCount(driverId);
 
     }
 }

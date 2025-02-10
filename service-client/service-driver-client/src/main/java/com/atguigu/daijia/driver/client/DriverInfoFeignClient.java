@@ -48,4 +48,7 @@ public interface DriverInfoFeignClient {
 
     @GetMapping("/driver/info/getDriverOpenId/{driverId}")
     Result<String> getDriverOpenId(@PathVariable("driverId") Long driverId);
+
+    @GetMapping("/driver/info/increaseOrderCount/{driverId}")
+    void increaseOrderCount(@PathVariable Long driverId);
 }

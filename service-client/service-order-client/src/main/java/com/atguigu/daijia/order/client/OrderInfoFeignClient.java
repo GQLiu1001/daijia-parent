@@ -94,4 +94,8 @@ public interface OrderInfoFeignClient {
 
     @GetMapping("/order/info/cusDrop/{orderId}")
     Result<Boolean> cusDrop(@PathVariable("orderId") Long orderId);
+
+
+    @GetMapping("/order/info/getOrderInfoByOrderNo/{orderNo}")
+    Result<OrderInfo> getOrderInfoByOrderNo(@PathVariable String orderNo);
 }

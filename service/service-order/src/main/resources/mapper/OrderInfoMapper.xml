@@ -68,4 +68,9 @@
           and info.order_no = #{orderNo}
             limit 1
     </select>
+    <select id="getOrderInfoByOrderNo" resultType="com.atguigu.daijia.model.entity.order.OrderInfo">
+        select *
+        from order_info
+        where order_no = #{orderNo}
+    </select>
 </mapper>

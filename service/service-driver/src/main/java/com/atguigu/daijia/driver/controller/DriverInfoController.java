@@ -97,5 +97,9 @@ public class DriverInfoController {
         return Result.ok(driverInfoService.getDriverOpenId(driverId));
     }
 
+    @GetMapping("/increaseOrderCount/{driverId}")
+    public void increaseOrderCount(@PathVariable Long driverId){
+        driverInfoService.increaseOrderCount(driverId);
+    }
 }
 
