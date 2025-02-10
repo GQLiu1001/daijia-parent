@@ -44,6 +44,7 @@ import com.wechat.pay.java.service.payments.model.Transaction;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -67,7 +68,7 @@ public class WxPayServiceImpl implements WxPayService {
     @Resource
     private RabbitService rabbitService;
     @Resource
-    private RedisTemplate drivingLineRedisTemplate;
+    private RedisTemplate redisTemplate;
 
     @Override
     public WxPrepayVo createWxPayment(PaymentInfoForm paymentInfoForm) {
@@ -168,12 +169,28 @@ public class WxPayServiceImpl implements WxPayService {
         System.out.println("增加司机订单数...");
         Result<OrderInfo> orderInfoByOrderNo = orderInfoFeignClient.getOrderInfoByOrderNo(orderNo);
         OrderInfo orderInfo = orderInfoByOrderNo.getData();
+        Long orderId = orderInfo.getId();
         Long userId = orderInfo.getCustomerId();
         Long driverId = orderInfo.getDriverId();
         driverInfoFeignClient.increaseOrderCount(driverId);
         System.out.println("司机订单数增加成功，司机 ID：" + driverId);
+
         System.out.println("从redis删除drivingLineVO 离谱的bug");
-        drivingLineRedisTemplate.delete("begin_forCus_drivingLineVo"+userId);
+        System.out.println("从redis设置drivingLineVO过期时间（10分钟）");
+        String drivingLineKey = "begin_forCus_drivingLineVo" + userId;
+        redisTemplate.expire(drivingLineKey, 10, TimeUnit.MINUTES);
+
+        System.out.println("从redis删除update:order:location");
+        redisTemplate.delete("update:order:location:" + orderId);
+
+        System.out.println("从redis删除driver:order:repeat:list");
+        redisTemplate.delete("driver:order:repeat:list:" + orderId);
+
+        redisTemplate.delete("redisson_delay_queue:{queue_cancel}");
+        redisTemplate.delete("redisson_delay_queue_timeout:{queue_cancel}");
+
+
+
     }
 
 }

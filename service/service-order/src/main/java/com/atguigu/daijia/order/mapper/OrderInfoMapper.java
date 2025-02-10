@@ -24,4 +24,6 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
     Boolean updateCusDrop(Long orderId);
 
     OrderInfo getOrderInfoByOrderNo(String orderNo);
+
+    Long getUserIdByOrderId(Long orderId);
 }

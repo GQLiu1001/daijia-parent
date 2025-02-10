@@ -273,7 +273,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setStatus(OrderStatus.START_SERVICE.getStatus());
         orderInfo.setStartServiceTime(new Date());
-
+        redisTemplate.delete("redisson_delay_queue:{queue_cancel}");
+        redisTemplate.delete("redisson_delay_queue_timeout:{queue_cancel}");
         int rows = orderInfoMapper.update(orderInfo, wrapper);
         if(rows == 1) {
             return true;
@@ -473,7 +474,22 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Override
     public Boolean cusDrop(Long orderId) {
+        Long userId = orderInfoMapper.getUserIdByOrderId(orderId);
+        System.out.println("userId:" + userId);
         Boolean b = orderInfoMapper.updateCusDrop(orderId);
+        System.out.println("从redis删除update:order:location");
+        redisTemplate.delete("update:order:location:" + orderId);
+
+        System.out.println("从redis删除driver:order:repeat:list");
+        redisTemplate.delete("driver:order:repeat:list:" + orderId);
+
+        System.out.println("从redis删除drivingLineVO 离谱的bug");
+        System.out.println("从redis设置drivingLineVO过期时间（10分钟）");
+        String drivingLineKey = "begin_forCus_drivingLineVo" + userId;
+        redisTemplate.expire(drivingLineKey, 10, TimeUnit.MINUTES);
+
+        redisTemplate.delete("redisson_delay_queue:{queue_cancel}");
+        redisTemplate.delete("redisson_delay_queue_timeout:{queue_cancel}");
         return b;
     }
 

@@ -1,5 +1,6 @@
 package com.atguigu.daijia.order.handle;
 
+import com.atguigu.daijia.common.util.AuthContextHolder;
 import com.atguigu.daijia.order.service.OrderInfoService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -21,6 +22,7 @@ public class RedisDelayHandle {
 
     @PostConstruct
     public void listener() {
+
         System.out.println("PostConstruct listener() 方法被调用了!"); // 再次确认 @PostConstruct 被调用 (保留这个日志)
         new Thread(()->{
             System.out.println("监听线程已启动!"); //  添加： 确认监听线程是否启动

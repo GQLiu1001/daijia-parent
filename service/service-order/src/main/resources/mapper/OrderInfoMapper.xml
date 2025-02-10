@@ -73,4 +73,10 @@
         from order_info
         where order_no = #{orderNo}
     </select>
+    <select id="getUserIdByOrderId" resultType="java.lang.Long">
+        select
+            customer_id
+        from order_info
+        where id = #{orderId}
+    </select>
 </mapper>
